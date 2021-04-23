@@ -4,6 +4,7 @@ package main
 import (
 	uuid "github.com/pborman/uuid"
 	log "github.com/sirupsen/logrus"
+    "fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,8 +19,11 @@ var (
 	target_url *url.URL
 	do_token   string
 	port       string
-	auth       = map[string][]PermissionRule{
-		"aaaa": {AllowAll{}},
+    token_to_user = map[string]string {
+        "aaaa": "testowy",
+    }
+	user_to_permissions = map[string][]PermissionRule{
+		"testowy": {AllowAll{}},
 	}
 )
 
@@ -41,24 +45,31 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	token := _token[0]
 
-	permissions, ok := auth[token]
+
+	user, ok := token_to_user[token]
 	if !ok {
 		http.Error(w, "Please provide a valid token in the Authorization header", 401)
 		logger.Info("Invalid or unknown token, aborting")
 		return
 	}
-	// TODO: stick actual user
+	permissions, ok := user_to_permissions[user]
+	if !ok {
+        // TODO: this is a serious issue, misconfiguration or something, act accordingly
+		return
+	}
 	logger.WithFields(log.Fields{
-		"user": "batman",
+		"user": user,
 	}).Info("Authenticated")
+
 
 	ar := url_to_auth_request(r.URL, r.Method)
 	effectivePermissionRules := append(permissions, DenyAll{})
 
-	// TODO: also show type with effective_permissions, also: fix the colors of the debug log
 	logger.WithFields(log.Fields{
+        // TODO: show array fields names (method, path)
 		"authorization_request": ar,
-		"effective_permissions": effectivePermissionRules,
+        // TODO: show type for array elements, but no the array itself
+		"effective_permissions": fmt.Sprintf("%#v", effectivePermissionRules),
 	}).Debug("Will auth in a tick")
 
 	for _, rule := range effectivePermissionRules {
@@ -178,6 +189,10 @@ func init() {
 	// TODO: logging based on envvar
 	//log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.DebugLevel)
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors: true,
+		FullTimestamp: true,
+	})
 
 	// TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
 
