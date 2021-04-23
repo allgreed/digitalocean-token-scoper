@@ -2,8 +2,11 @@
 A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token scoping](https://ideas.digitalocean.com/ideas/DO-I-966)*
 
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
+<!--*-->
 
 ## Usage
+It's heavily alpha right now (as in: not done, will probably explode)
+
 For now go for [dev](#dev)
 
 ## Dev

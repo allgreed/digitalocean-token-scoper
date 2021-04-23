@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-var auth = map[string]string{
-	"aaaa": "xxxd",
+var auth = map[string][]PermissionRule{
+	"aaaa": {AllowAll{}},
 }
 var target_url *url.URL
 var do_token string
@@ -40,11 +40,28 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	// TODO: log - authenticated as ...
 
 	ar := url_to_auth_request(r.URL, r.Method)
+
+    effectivePermissionRules := append(permissions, DenyAll{})
+
+    // TODO: log debug
 	fmt.Printf("%+v\n", ar)
 	fmt.Printf("%+v\n", permissions)
-	// TODO: test
-	// if fails return 403 with info that request path / method is not allowed
-	// TODO: log - unauthorized action attempt
+	fmt.Printf("%+v\n", effectivePermissionRules)
+    for _, rule := range effectivePermissionRules {
+        if rule.is_applicable(ar) {
+            // TODO: log debug
+	        fmt.Printf("matched rule %T with parameters %+v\n", rule, rule)
+            if !rule.can_i(ar) {
+		        http.Error(w, "You don't have access to that resource with that method", 403)
+                // TODO: log - unauthorized action attempt
+                return
+            } else {
+                break
+            }
+        }
+    }
+	// TODO: log - authrized access
+
 
 	hh := http.Header{}
 	for k, v := range r.Header {
@@ -92,14 +109,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// TODO: log - request completed succesfully
-	// TODO: update the README that it's working
-	// TODO: build with nix
-	// TODO: create minimal container
-	// TODO: setup CI
-
-	// TODO: add health and ready url
-	// TODO: add metrics
-	// TODO: add proper usage, etc to the README
+    // TODO: init module
 }
 
 func acquire_env_or_default(key string, fallback string) string {
@@ -120,9 +130,9 @@ func acquire_env_or_fail(key string) string {
 }
 
 // TODO: can fail?
-func url_to_auth_request(u *url.URL, m string) authorizationRequest {
+func url_to_auth_request(u *url.URL, m string) AuthorizationRequest {
 	// TODO: do some serializaion to make sure we're on the same page
-	return authorizationRequest{path: u.Path, method: m}
+	return AuthorizationRequest{path: u.Path, method: m}
 }
 
 func main() {
@@ -155,4 +165,14 @@ func main() {
 	}
 
 	s.ListenAndServe()
+
+	// TODO: update the README that it's working
+    // TODO: add a section on how to use and create rules
+	// TODO: build with nix
+	// TODO: create minimal container
+	// TODO: setup CI
+
+	// TODO: add health and ready url
+	// TODO: add metrics
+	// TODO: add proper usage, etc to the README
 }
