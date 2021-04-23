@@ -30,4 +30,4 @@ func (_ DenyAll) is_applicable(_ AuthorizationRequest) bool {
 
 // TODO: test
 // TODO: add some real rules, like allow particular LB, allow setting recrods on particular domain
-// TODO: create an issue about body authentication -> why I don't need it yet and how to do it
+// TODO: create an issue about body authentication -> why I don't need it yet and how to do it => also: take into account changing the logging!
