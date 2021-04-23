@@ -8,9 +8,9 @@ CONTAINER_PORT=5678
 # ###############
 .PHONY: container run build lint test env-up env-down
 
-run: setup ## run the app
+run: secrets/token setup ## run the app
 	# TODO: ensure that env is running?
-	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) go run $(SOURCES)
+	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_TOKEN_PATH=./secrets/token go run $(SOURCES)
 
 run-watch: setup ## run the app in dev mode
 	ls $(SOURCES) Makefile | entr -cr make run
@@ -50,6 +50,10 @@ setup:
 gitclean:
 
 gitclean-with-libs:
+
+secrets/token:
+	mkdir -p secrets
+	echo "verymuchanexampletoken" > secrets/token
 
 # Helpers
 # ###############

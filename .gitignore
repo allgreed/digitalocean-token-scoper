@@ -1,2 +1,5 @@
 # compiled binaries
 *.out
+
+# emulate k8s env
+secrets

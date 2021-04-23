@@ -10,6 +10,8 @@ import (
 	"os"
 	"path"
 	"time"
+    "io/ioutil"
+    "strings"
 )
 
 var auth = map[string][]PermissionRule{
@@ -19,14 +21,14 @@ var target_url *url.URL
 var do_token string
 
 func handleFunc(w http.ResponseWriter, r *http.Request) {
-	// TODO: log incoming request properly - everything except the token
+	log.Printf("Incoming request to %v %v\n", r.Method, r.URL)
 	// TODO: give each request some id that'll stick through the logs
-	//fmt.Printf("--> %v %v\n", r.Method, r.URL)
 
 	_token := r.Header["Authorization"]
 	if len(_token) != 1 {
 		http.Error(w, "Please provide a token in the Authorization header", 401)
 		// TODO: log - missing or malformed token
+		// TODO: stick request context
 		return
 	}
 	token := _token[0]
@@ -35,9 +37,11 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		http.Error(w, "Please provide a valid token in the Authorization header", 401)
 		// TODO: log - invalid token
+		// TODO: stick request context
 		return
 	}
 	// TODO: log - authenticated as ...
+    // TODO: stick request context
 
 	ar := url_to_auth_request(r.URL, r.Method)
 
@@ -61,6 +65,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
         }
     }
 	// TODO: log - authrized access
+    // TODO: stick request context
 
 
 	hh := http.Header{}
@@ -69,8 +74,8 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, ok := hh["Authorization"]; ok {
-		// TODO: append the real token -> when I've got the token
-		hh["Authorization"] = []string{"BLE"}
+		hh["Authorization"] = []string{do_token}
+        // TODO: make sure it's there and instead of the original auth
 	}
 
 	r.URL.Host = target_url.Host
@@ -89,6 +94,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		// TODO: relay more info ?
 		http.Error(w, "Could not reach origin server", 500)
 		// TODO: log - request failed
+        // TODO: stick request context
 		return
 	}
 	defer resp.Body.Close()
@@ -109,7 +115,9 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	// TODO: log - request completed succesfully
+    // TODO: stick request context
     // TODO: init module
+    // TODO: gofmt
 }
 
 func acquire_env_or_default(key string, fallback string) string {
@@ -117,6 +125,7 @@ func acquire_env_or_default(key string, fallback string) string {
 		return value
 	}
 
+    log.Printf("Defaulting to %s=%s\n", key, fallback)
 	return fallback
 }
 
@@ -142,17 +151,21 @@ func main() {
 	_target_url := acquire_env_or_default("APP_TARGET_URL", "https://api.digitalocean.com/")
 	_tu, err := url.Parse(_target_url)
 	if err != nil {
-		log.Fatal(err)
+        log.Fatalf("Something went wrong when processing APP_TARGET_URL, err: %s", err)
 	}
 	target_url = _tu // golang what are u doin' golang stahp!
 
-	// TODO: get the real token from secretpath
-	// get the secretpath from the envvar, with a sensible default -> see best practices for mounting secrets in k8s
-	do_token = "aaaAAAA"
+	token_path := acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token")
+    _do_token, err := ioutil.ReadFile(token_path)
+    if err != nil {
+        log.Fatalf("Something went wrong when reading secret from %s, err: %s", token_path, err)
+    }
+	do_token = strings.TrimSpace(string(_do_token))
+    // TODO: logs as json? will it work with loki and grafana?
+        // look at golang logging in more depth
+        // grep for `log` usage
 
 	// TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
-
-	// TODO: log port, target_url, and the fact that token was loaded
 
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
@@ -166,6 +179,7 @@ func main() {
 
 	s.ListenAndServe()
 
+    // TODO: test it E2E
 	// TODO: update the README that it's working
     // TODO: add a section on how to use and create rules
 	// TODO: build with nix
