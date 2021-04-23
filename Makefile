@@ -1,5 +1,4 @@
 SOURCES=main.go auth.go
-ENTRYPOINT=main.go
 PORT=8080
 
 CONTAINER_NAME=do-token-scoper-companion
@@ -19,7 +18,7 @@ run-watch: setup ## run the app in dev mode
 build: setup main.out ## create artifact
 
 lint: setup ## run static analysis
-	@echo "Not implemented"; false
+	go fmt $(SOURCES)
 
 test: setup ## run all tests
 	@echo "Not implemented"; false
