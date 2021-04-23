@@ -11,22 +11,22 @@ type PermissionRule interface {
 }
 
 type AllowAll struct{}
+
 func (_ AllowAll) can_i(_ AuthorizationRequest) bool {
-    return true
+	return true
 }
 func (_ AllowAll) is_applicable(_ AuthorizationRequest) bool {
-    return true
+	return true
 }
-
 
 type DenyAll struct{}
+
 func (_ DenyAll) can_i(_ AuthorizationRequest) bool {
-    return false
+	return false
 }
 func (_ DenyAll) is_applicable(_ AuthorizationRequest) bool {
-    return true
+	return true
 }
-
 
 // TODO: test
 // TODO: add some real rules, like allow particular LB, allow setting recrods on particular domain
