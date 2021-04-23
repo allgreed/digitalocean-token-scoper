@@ -5,43 +5,25 @@ import (
     "fmt"
     "io"
     "net/http"
+    "net/url"
     "time"
+    "os"
+    "log"
+    "path"
 )
 
 
 var auth = map[string]string {
     "aaaa": "xxxd",
 }
-
-
-func main() {
-    // TODO: get envs here and pass them down?
-    // TODO: get the real token from secretpath
-
-    // TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
-
-    handler := http.DefaultServeMux
-    handler.HandleFunc("/", handleFunc)
-    s := &http.Server{
-        // TODO: parametrize serving port
-        Addr:           ":8080",
-        Handler:        handler,
-        ReadTimeout:    10 * time.Second,
-        WriteTimeout:   10 * time.Second,
-        MaxHeaderBytes: 1 << 20,
-    }
-    
-    s.ListenAndServe()
-    // TODO: move it to the bottom
-}
+var target_url *url.URL
+var do_token string
 
 
 func handleFunc(w http.ResponseWriter, r *http.Request) {
-    // TODO: log incoming request properly
+    // TODO: log incoming request properly - everything except the token
+    // TODO: give each request some id that'll stick through the logs
     //fmt.Printf("--> %v %v\n", r.Method, r.URL)
-        // everything except the token
-        // give each request some id that'll stick through the logs
-
 
     _token := r.Header["Authorization"]
     if len(_token) != 1 {
@@ -60,17 +42,9 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
     // TODO: log - authenticated as ...
     
 
-    // TODO: make'ify companion scripts for env-dev
-        // docker run -p 5678:5678 hashicorp/http-echo -text="hello world"
-        // name, demon, for easeri killing
-    // TODO: make'ify terminal commends for interacting
-        // curl localhost:8080 -H "Authorization: aaaa"
-    // TODO: come up with actuall permission format
-    fmt.Println("\v", permissions)
-    // nah just make classes :D and check each of them if the apply! based on path and method!
-    // TODO: do the authorization check
-    //r.URL.Path
-    //r.Method
+    ar := url_to_auth_request(r.URL, r.Method)
+    fmt.Printf("%+v\n", ar)
+    fmt.Printf("%+v\n", permissions)
     // TODO: test
     // if fails return 403 with info that request path / method is not allowed
     // TODO: log - unauthorized action attempt
@@ -86,10 +60,9 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
     }
 
 
-    // TODO paremtrize Scheme default(https) and host-port default("api.digitalocean")
-    r.URL.Host = "localhost:5678"
-    r.URL.Scheme = "http"
-
+    r.URL.Host = target_url.Host
+    r.URL.Scheme = target_url.Scheme
+    r.URL.Path = path.Join(target_url.Path, r.URL.Path)
     proxied_request := http.Request{
         Method: r.Method,
         URL: r.URL,
@@ -129,6 +102,66 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
     // TODO: create minimal container
     // TODO: setup CI
 
+    // TODO: add health and ready url
     // TODO: add metrics
     // TODO: add proper usage, etc to the README
+}
+
+
+func acquire_env_or_default(key string, fallback string) string {
+    if value, ok := os.LookupEnv(key); ok {
+        return value
+    }
+
+    return fallback
+}
+
+
+func acquire_env_or_fail(key string) string {
+    if value, ok := os.LookupEnv(key); ok {
+        return value
+    }
+
+    log.Fatalf("environment variable %q required, but missing", key)
+    return "" // will never be reached, but compiler requires it...
+}
+
+
+// TODO: can fail?
+func url_to_auth_request(u *url.URL, m string) authorizationRequest {
+    // TODO: do some serializaion to make sure we're on the same page
+    return authorizationRequest{ path: u.Path, method: m}
+}
+
+
+func main() {
+    _port := acquire_env_or_fail("APP_PORT")
+    port := ":" + _port
+
+    _target_url := acquire_env_or_default("APP_TARGET_URL", "https://api.digitalocean.com/")
+    _tu, err := url.Parse(_target_url)
+    if err != nil {
+        log.Fatal(err)
+    }
+    target_url = _tu // golang what are u doin' golang stahp!
+
+    // TODO: get the real token from secretpath
+    // get the secretpath from the envvar, with a sensible default -> see best practices for mounting secrets in k8s
+    do_token = "aaaAAAA"
+
+    // TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
+
+    // TODO: log port, target_url, and the fact that token was loaded
+
+    handler := http.DefaultServeMux
+    handler.HandleFunc("/", handleFunc)
+    s := &http.Server{
+        Addr:           port,
+        Handler:        handler,
+        ReadTimeout:    10 * time.Second,
+        WriteTimeout:   10 * time.Second,
+        MaxHeaderBytes: 1 << 20,
+    }
+    
+    s.ListenAndServe()
 }

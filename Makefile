@@ -1,15 +1,20 @@
-SOURCES=main.go
+SOURCES=main.go auth.go
 ENTRYPOINT=main.go
+PORT=8080
+
+CONTAINER_NAME=do-token-scoper-companion
+CONTAINER_PORT=5678
 
 # Porcelain
 # ###############
-.PHONY: container run build lint test
+.PHONY: container run build lint test env-up env-down
 
 run: setup ## run the app
-	go run $(ENTRYPOINT)
+	# TODO: ensure that env is running?
+	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) go run $(SOURCES)
 
 run-watch: setup ## run the app in dev mode
-	ls $(SOURCES) | entr -cr make run
+	ls $(SOURCES) Makefile | entr -cr make run
 
 build: setup main.out ## create artifact
 
@@ -19,9 +24,20 @@ lint: setup ## run static analysis
 test: setup ## run all tests
 	@echo "Not implemented"; false
 
+env-up: ## set up dev environment
+	docker run -d --name $(CONTAINER_NAME) --restart=unless-stopped -p $(CONTAINER_PORT):5678 hashicorp/http-echo:0.2.3 -text="hello world"
+	sleep 2
+
+env-down: ## tear down dev environment
+	docker rm -f $(CONTAINER_NAME)
+
 container: build ## create container
 	#docker build -t lmap .
 	@echo "Not implemented"; false
+
+interact: ## helper process to run predefined inputs
+	# TODO: simple command runner with a few options that can be chosen at a keypress
+	curl localhost:$(PORT) -H "Authorization: aaaa"
 
 # Plumbing
 # ###############
