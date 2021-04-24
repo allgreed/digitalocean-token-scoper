@@ -1,5 +1,6 @@
-SOURCES=main.go auth.go
-TESTS=auth_test.go
+SOURCES=main.go rules.go
+TESTS=rules_test.go
+# TODO: use magic functions to find all sources and tests
 PORT=8080
 
 CONTAINER_NAME=do-token-scoper-companion

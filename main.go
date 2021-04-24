@@ -224,7 +224,6 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: s/auth.go/rules.go/g
 	// TODO: json error responses
 	// TODO: parametrize the auth config and token acquisition ^^
 	// TODO: put this into production
