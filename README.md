@@ -6,7 +6,7 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
 
 ## Usage
-It's heavily alpha right now - it's proven to work, but may require editing source code of PoC quality for your usecase
+It's heavily alpha right now - it's proven to work, but ~may~ will require editing source code of PoC quality for your usecase
 
 For now go for [dev](#dev)
 
@@ -32,4 +32,8 @@ make help
 
 ## Security considerations
 
-TODO
+- I strongly suggest not exposing this service to the internet
+- standard considerations apply in order to secure the token storage and access to the app environment
+- token verification should be resistant against time-attacks, however this wasn't tested
+- there is no rate-limiting mechanism on a per-user basis => the DO account's limit is shared by all the users
+- response from DO's API is passed to the client **as is**, including headers. I've seen nothing sensitive there (as of 24.04.2021), yet afaik it's not guaranteed by DO.

@@ -237,7 +237,6 @@ func main() {
 	// TODO: add a section on how to use and create rules
 	// TODO: cover minor todos
 	// TODO: ask for a 3rd party security audit
-	// TODO: see if nothing interesting is leaked in the return headers from DO
 	// TODO: update info that it's working , but not really production quality
 
 	// TODO: add health and ready url
