@@ -1,0 +1,41 @@
+package main
+
+import (
+	log "github.com/sirupsen/logrus"
+	"net/http"
+	"net/url"
+	"os"
+    "encoding/json"
+)
+
+func acquire_env_or_default(key string, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+
+	log.Printf("Defaulting to %s=%s\n", key, fallback)
+	return fallback
+}
+
+func acquire_env_or_fail(key string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+
+	log.Fatalf("environment variable %q required, but missing", key)
+	return "" // will never be reached, but compiler requires it...
+}
+
+func JSONError(w http.ResponseWriter, err interface{}, code int) {
+    w.Header().Set("Content-Type", "application/json; charset=utf-8")
+    w.Header().Set("X-Content-Type-Options", "nosniff")
+    w.WriteHeader(code)
+    json.NewEncoder(w).Encode(err)
+}
+
+func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
+	// TODO: do some serializaion to make sure we're on the same page
+	// TODO: rewrite tests to use new values?
+	// TODO: is this actuall needed?
+	return AuthorizationRequest{path: u.Path, method: m}, nil
+}

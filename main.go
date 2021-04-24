@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"strings"
 	"time"
@@ -39,7 +38,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	_token := r.Header["Authorization"]
 	if len(_token) != 1 {
-		http.Error(w, "Please provide a token in the Authorization header", 401)
+		JSONError(w, "Please provide a token in the Authorization header", 401)
 		logger.Info("Missing token, aborting")
 		return
 	}
@@ -47,7 +46,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := token_to_user[token]
 	if !ok {
-		http.Error(w, "Please provide a valid token in the Authorization header", 401)
+		JSONError(w, "Please provide a valid token in the Authorization header", 401)
 		logger.Info("Invalid or unknown token, aborting")
 		return
 	}
@@ -63,7 +62,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	ar, err := url_to_auth_request(r.URL, r.Method)
 	if err != nil {
 		// TODO: fix this up
-		//http.Error(w, "You don't have access to that resource with that method", 403)
+		//JSONError(w, "You don't have access to that resource with that method", 403)
 		//logger.WithFields(log.Fields{
 		//"ar": ar,
 		//}).Warn("Unauthorized action attempt")
@@ -83,7 +82,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 			}).Debug("Matched rule")
 
 			if !rule.can_i(ar) {
-				http.Error(w, "You don't have access to that resource with that method", 403)
+				JSONError(w, "You don't have access to that resource with that method", 403)
 				logger.WithFields(log.Fields{
 					"ar": ar,
 				}).Warn("Unauthorized action attempt")
@@ -118,7 +117,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.DefaultTransport.RoundTrip(&proxied_request)
 	if err != nil {
 		// TODO: relay more info ?
-		http.Error(w, "Could not reach origin server", 500)
+		JSONError(w, "Could not reach origin server", 500)
 		// TODO: fix this - what info should be passed? maybe even error!
 		logger.WithFields(log.Fields{}).Warn("Wabababababa")
 		return
@@ -150,32 +149,6 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(bodyBytes)
 	logger.Info("Success")
-}
-
-// TODO: move this to utils.go
-func acquire_env_or_default(key string, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-
-	log.Printf("Defaulting to %s=%s\n", key, fallback)
-	return fallback
-}
-
-func acquire_env_or_fail(key string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-
-	log.Fatalf("environment variable %q required, but missing", key)
-	return "" // will never be reached, but compiler requires it...
-}
-
-func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
-	// TODO: do some serializaion to make sure we're on the same page
-	// TODO: rewrite tests to use new values?
-	// TODO: is this actuall needed?
-	return AuthorizationRequest{path: u.Path, method: m}, nil
 }
 
 func main() {
@@ -224,8 +197,7 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: json error responses
-	// TODO: parametrize the auth config and token acquisition ^^
+	// TODO: parametrize the user token acquisition ^^
 	// TODO: put this into production
 	// TODO: update the README that it's working in production, but there are still paths to be covered
 
@@ -237,6 +209,7 @@ func main() {
 	// TODO: ask for a 3rd party security audit
 	// TODO: update info that it's working , but not really production quality
 
+    // TODO: parametrize user config permissions
 	// TODO: add health and ready url
 	// TODO: add metrics
 	// TODO: add proper usage (local / k8s examples), etc to the README

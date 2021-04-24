@@ -1,4 +1,4 @@
-SOURCES=main.go rules.go
+SOURCES=main.go rules.go utils.go
 TESTS=rules_test.go
 # TODO: use magic functions to find all sources and tests
 PORT=8080
