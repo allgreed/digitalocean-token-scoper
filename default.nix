@@ -16,6 +16,7 @@ with pkgs; {
       go
       entr
       curl
+      jq
     ];
   };
   # TODO: tidy this up

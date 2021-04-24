@@ -24,7 +24,7 @@ test: setup ## run all tests
 	@echo "Not implemented"; false
 
 env-up: ## set up dev environment
-	docker run -d --name $(CONTAINER_NAME) --restart=unless-stopped -p $(CONTAINER_PORT):5678 hashicorp/http-echo:0.2.3 -text="hello world"
+	docker run -d --name $(CONTAINER_NAME) --restart=unless-stopped -p $(CONTAINER_PORT):80 ealen/echo-server:0.5.0 --enable:environment false --enable:host
 	sleep 2
 
 env-down: ## tear down dev environment
@@ -36,7 +36,7 @@ container: build ## create container
 
 interact: ## helper process to run predefined inputs
 	# TODO: simple command runner with a few options that can be chosen at a keypress
-	curl localhost:$(PORT) -H "Authorization: aaaa"
+	curl localhost:$(PORT) --silent -H "Authorization: aaaa" | jq
 
 # Plumbing
 # ###############

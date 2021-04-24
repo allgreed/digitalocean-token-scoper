@@ -52,17 +52,24 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Invalid or unknown token, aborting")
 		return
 	}
-	permissions, ok := user_to_permissions[user]
-	if !ok {
-        // TODO: this is a serious issue, misconfiguration or something, act accordingly
-		return
-	}
 	logger.WithFields(log.Fields{
 		"user": user,
 	}).Info("Authenticated")
 
 
-	ar := url_to_auth_request(r.URL, r.Method)
+	permissions, ok := user_to_permissions[user]
+	if !ok {
+        logger.Panic("Entry for authenticated user missing from permisson table, something went terribly wrong!")
+	}
+
+	ar, err := url_to_auth_request(r.URL, r.Method)
+    if err != nil {
+        http.Error(w, "You don't have access to that resource with that method", 403)
+        logger.WithFields(log.Fields{
+            "ar": ar,
+        }).Warn("Unauthorized action attempt")
+        return
+    }
 	effectivePermissionRules := append(permissions, DenyAll{})
 
 	logger.WithFields(log.Fields{
@@ -89,6 +96,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info("Authorized")
 
+
 	hh := http.Header{}
 	for k, v := range r.Header {
 		hh[k] = v
@@ -96,7 +104,6 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	if _, ok := hh["Authorization"]; ok {
 		hh["Authorization"] = []string{do_token}
-		// TODO: make sure it's there and instead of the original auth
 	}
 
 	r.URL.Host = target_url.Host
@@ -156,10 +163,9 @@ func acquire_env_or_fail(key string) string {
 	return "" // will never be reached, but compiler requires it...
 }
 
-// TODO: can fail?
-func url_to_auth_request(u *url.URL, m string) AuthorizationRequest {
+func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
 	// TODO: do some serializaion to make sure we're on the same page
-	return AuthorizationRequest{path: u.Path, method: m}
+	return AuthorizationRequest{path: u.Path, method: m}, nil
 }
 
 func init() {
@@ -191,8 +197,10 @@ func init() {
 		DisableColors: true,
 		FullTimestamp: true,
 	})
+    //https://github.com/sirupsen/logrus
 
 	// TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
+    // TODO: verify that all the tokens have corresponding user entries
 
 }
 
