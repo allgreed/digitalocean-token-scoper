@@ -66,16 +66,14 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	effectivePermissionRules := append(permissions, DenyAll{})
 
 	logger.WithFields(log.Fields{
-        // TODO: show array fields names (method, path)
-		"authorization_request": ar,
-        // TODO: show type for array elements, but no the array itself
-		"effective_permissions": fmt.Sprintf("%#v", effectivePermissionRules),
+		"authorization_request": fmt.Sprintf("%+v", ar),
+		"effective_permissions": strings.Replace(fmt.Sprintf("%#v", effectivePermissionRules), "[]main.PermissionRule{", "{", 1),
 	}).Debug("Will auth in a tick")
 
 	for _, rule := range effectivePermissionRules {
 		if rule.is_applicable(ar) {
 			logger.WithFields(log.Fields{
-				"rule": rule,
+				"rule": fmt.Sprintf("%#v", rule),
 			}).Debug("Matched rule")
 
 			if !rule.can_i(ar) {
