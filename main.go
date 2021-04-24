@@ -222,9 +222,8 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	s.ListenAndServe()
+	log.Fatal(s.ListenAndServe())
 
-	// TODO: fail with a message if the port is taken
 	// TODO: s/auth.go/rules.go/g
 	// TODO: json error responses
 	// TODO: parametrize the auth config and token acquisition ^^
