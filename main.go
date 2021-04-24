@@ -64,10 +64,11 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	ar, err := url_to_auth_request(r.URL, r.Method)
     if err != nil {
-        http.Error(w, "You don't have access to that resource with that method", 403)
-        logger.WithFields(log.Fields{
-            "ar": ar,
-        }).Warn("Unauthorized action attempt")
+        // TODO: fix this up
+        //http.Error(w, "You don't have access to that resource with that method", 403)
+        //logger.WithFields(log.Fields{
+            //"ar": ar,
+        //}).Warn("Unauthorized action attempt")
         return
     }
 	effectivePermissionRules := append(permissions, DenyAll{})
@@ -145,6 +146,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	logger.Info("Success")
 }
 
+// TODO: move this to utils.go
 func acquire_env_or_default(key string, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
@@ -165,10 +167,13 @@ func acquire_env_or_fail(key string) string {
 
 func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
 	// TODO: do some serializaion to make sure we're on the same page
+    // TODO: rewrite tests to use new values?
+    // TODO: is this actuall needed?
 	return AuthorizationRequest{path: u.Path, method: m}, nil
 }
 
-func init() {
+
+func main() {
 	_port := acquire_env_or_fail("APP_PORT")
 	port = ":" + _port
 
@@ -202,9 +207,7 @@ func init() {
 	// TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
     // TODO: verify that all the tokens have corresponding user entries
 
-}
 
-func main() {
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
 	s := &http.Server{
@@ -217,15 +220,21 @@ func main() {
 
 	s.ListenAndServe()
 
-	// TODO: test it E2E
-	// TODO: update the README that it's working
-	// TODO: add a section on how to use and create rules
 	// TODO: build with nix
-	// TODO: add 'built with nix' badge
 	// TODO: create minimal container
 	// TODO: setup CI
+    // TODO: test it E2E - in production :D
+	// TODO: update the README that it's working, but there are still paths to be covered
+
+	// TODO: add a section on how to use and create rules
+    // TODO: cover minor todos
+    // TODO: update info that it's working , but not really production quality
 
 	// TODO: add health and ready url
 	// TODO: add metrics
-	// TODO: add proper usage, etc to the README
+	// TODO: add proper usage (local / k8s examples), etc to the README
+    // TODO: add badges -> snyk vulnearbilities,  drone passing, test coverage, codeclimate style
+    // TODO: setup dependency monitoring
+    // https://github.com/dwyl/repo-badges
+    // TODO: update info to mention when the project was first deployed - that it should work and be of decent quality, but it's still young
 }

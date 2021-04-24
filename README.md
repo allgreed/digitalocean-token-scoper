@@ -1,6 +1,8 @@
 # digitalocean-token-scoper
 A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token scoping](https://ideas.digitalocean.com/ideas/DO-I-966)*
 
+[![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
+
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
 <!--*-->
 

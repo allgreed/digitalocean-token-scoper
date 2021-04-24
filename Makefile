@@ -1,4 +1,5 @@
 SOURCES=main.go auth.go
+TESTS=auth_test.go
 PORT=8080
 
 CONTAINER_NAME=do-token-scoper-companion
@@ -6,13 +7,13 @@ CONTAINER_PORT=5678
 
 # Porcelain
 # ###############
-.PHONY: container run build lint test env-up env-down
+.PHONY: container run build lint test env-up env-down test-watch
 
 run: secrets/token setup ## run the app
 	# TODO: ensure that env is running?
 	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_TOKEN_PATH=./secrets/token go run $(SOURCES)
 
-run-watch: setup ## run the app in dev mode
+run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
 
 build: setup main.out ## create artifact
@@ -21,7 +22,10 @@ lint: setup ## run static analysis
 	go fmt $(SOURCES)
 
 test: setup ## run all tests
-	@echo "Not implemented"; false
+	go test
+
+test-watch: setup ## run tests in watch mode
+	ls $(SOURCES) $(TESTS) | entr -c make test
 
 env-up: ## set up dev environment
 	docker run -d --name $(CONTAINER_NAME) --restart=unless-stopped -p $(CONTAINER_PORT):80 ealen/echo-server:0.5.0 --enable:environment false --enable:host
