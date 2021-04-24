@@ -50,3 +50,19 @@ func read_tokenfile(p string) string {
 
 	return strings.TrimSpace(string(_content))
 }
+
+func initialize_logging() {
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors: true,
+		FullTimestamp: true,
+	})
+	// TODO: logs as json? will it work with loki and grafana?
+	// look at golang logging in more depth
+	// grep for `log` usage
+	// TODO: output errors to stderr, and the rest to stdout
+	//log.SetOutput(os.Stdout)
+	// TODO: logging based on envvar
+	//log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.DebugLevel)
+	//https://github.com/sirupsen/logrus
+}

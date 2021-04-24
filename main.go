@@ -150,6 +150,8 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	initialize_logging() // this has to be first to ensure log consistency
+
 	_port := acquire_env_or_default("APP_PORT", "80")
 	port = ":" + _port
 
@@ -161,19 +163,6 @@ func main() {
 	target_url = _tu // golang what are u doin' golang stahp!
 
 	do_token = read_tokenfile(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token"))
-	// TODO: logs as json? will it work with loki and grafana?
-	// look at golang logging in more depth
-	// grep for `log` usage
-	// TODO: output errors to stderr, and the rest to stdout
-	//log.SetOutput(os.Stdout)
-	// TODO: logging based on envvar
-	//log.SetFormatter(&log.JSONFormatter{})
-	log.SetLevel(log.DebugLevel)
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: true,
-	})
-	//https://github.com/sirupsen/logrus
 
 	users := []string{}
 	for k, _ := range user_to_permissions {
