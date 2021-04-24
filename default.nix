@@ -8,7 +8,9 @@ let
   };
   pkgs = import nixpkgs { config = {}; };
 in
-with pkgs; {
+with pkgs; rec {
+  pname = "digitalocean-token-scoper";
+  version = "0.1.0";
   shell = mkShell {
     buildInputs = [
       git
@@ -19,32 +21,41 @@ with pkgs; {
       jq
     ];
   };
-  # TODO: tidy this up
-  go.module = buildGoModule rec {
-    pname = "pet";
-    version = "0.3.4";
+  executable.binary = buildGoModule rec {
+    inherit pname;
+    inherit version;
 
-    src = fetchFromGitHub {
-      owner = "knqyf263";
-      repo = "pet";
-      rev = "v${version}";
-      sha256 = "0m2fzpqxk7hrbxsgqplkg7h2p7gv6s1miymv3gvw0cz039skag0s";
-    };
-
-    vendorSha256 = "1879j77k96684wi554rkjxydrj8g3hpp0kvxz03sd8dmwr3lh83j"; 
+    src = ./.;
+    vendorSha256 = "0vwbv4q5x2ph7qh63mig9nkk4bz2cmxgqxkvc6c09b3y92cvlknc"; 
 
     subPackages = [ "." ]; 
-
-    deleteVendor = true; 
 
     runVend = true; 
 
     meta = with lib; {
-      description = "Simple command-line snippet manager, written in Go";
-      homepage = "https://github.com/knqyf263/pet";
+      description = "A solution to Digitalocean's lack of token scoping*";
+      homepage = "https://github.com/allgreed/digitalocean-token-scoper";
       license = licenses.mit;
-      maintainers = with maintainers; [ kalbasit ];
-      platforms = platforms.linux ++ platforms.darwin;
+      maintainers = with maintainers; [ allgreed ];
+      platforms = platforms.linux;
+    };
+  };
+  docker.image = pkgs.dockerTools.buildImage {
+    name = pname;
+    tag = version;
+
+    created = "now";
+
+    contents = executable.binary;
+
+    config = {
+      Cmd = [
+        "${executable.binary}/bin/${pname}"
+      ];
+
+      ExposedPorts = {
+        "80/tcp" = {};
+      };
     };
   };
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	uuid "github.com/pborman/uuid"
 	log "github.com/sirupsen/logrus"
-	"io"
+	//"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -20,10 +20,10 @@ var (
 	do_token      string
 	port          string
 	token_to_user = map[string]string{
-		"aaaa": "testowy",
+		"aaaa": "allgreed",
 	}
 	user_to_permissions = map[string][]PermissionRule{
-		"testowy": {AllowAll{}},
+		"allgreed": {AllowSingleDomainAllRecrodsAllActions{domain: "olgierd.space"}},
 	}
 )
 
@@ -101,7 +101,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, ok := hh["Authorization"]; ok {
-		hh["Authorization"] = []string{do_token}
+		hh["Authorization"] = []string{"Bearer " + do_token}
 	}
 
 	r.URL.Host = target_url.Host
@@ -129,17 +129,26 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	for hk, hv := range resp.Header {
 		respH[hk] = hv
 	}
+	fmt.Println(resp.Body)
 	w.WriteHeader(resp.StatusCode)
-	if resp.ContentLength > 0 {
-		// ignore I/O errors, since there's nothing we can do
-		io.CopyN(w, resp.Body, resp.ContentLength)
-	} else if resp.Close {
-		for {
-			if _, err := io.Copy(w, resp.Body); err != nil {
-				break
-			}
-		}
+	//if resp.ContentLength > 0 {
+	//// ignore I/O errors, since there's nothing we can do
+	//io.CopyN(w, resp.Body, resp.ContentLength)
+	//} else if resp.Close {
+	//for {
+	//if _, err := io.Copy(w, resp.Body); err != nil {
+	//fmt.Println(err)
+	//break
+	//}
+	//}
+	//}
+	// TODO: stream instead of buffering to memory
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// TODO: handle this properly
+		log.Fatal(err)
 	}
+	w.Write(bodyBytes)
 	logger.Info("Success")
 }
 
@@ -170,7 +179,7 @@ func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
 }
 
 func main() {
-	_port := acquire_env_or_fail("APP_PORT")
+	_port := acquire_env_or_default("APP_PORT", "80")
 	port = ":" + _port
 
 	_target_url := acquire_env_or_default("APP_TARGET_URL", "https://api.digitalocean.com/")
@@ -215,14 +224,20 @@ func main() {
 
 	s.ListenAndServe()
 
-	// TODO: build with nix
-	// TODO: create minimal container
-	// TODO: setup CI
-	// TODO: test it E2E - in production :D
-	// TODO: update the README that it's working, but there are still paths to be covered
+	// TODO: fail with a message if the port is taken
+	// TODO: s/auth.go/rules.go/g
+	// TODO: json error responses
+	// TODO: parametrize the auth config and token acquisition ^^
+	// TODO: put this into production
+	// TODO: update the README that it's working in production, but there are still paths to be covered
 
+	// TODO: logs! ^^
+	// TODO: setup CI
+	// TODO: write the LB rule
 	// TODO: add a section on how to use and create rules
 	// TODO: cover minor todos
+	// TODO: ask for a 3rd party security audit
+	// TODO: see if nothing interesting is leaked in the return headers from DO
 	// TODO: update info that it's working , but not really production quality
 
 	// TODO: add health and ready url

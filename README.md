@@ -1,13 +1,12 @@
 # digitalocean-token-scoper
 A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token scoping](https://ideas.digitalocean.com/ideas/DO-I-966)*
-
+<!--*-->
 [![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
 
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
-<!--*-->
 
 ## Usage
-It's heavily alpha right now (as in: not done, will probably explode)
+It's heavily alpha right now - it's proven to work, but may require editing source code of PoC quality for your usecase
 
 For now go for [dev](#dev)
 
@@ -30,3 +29,7 @@ make init
 ```
 make help
 ```
+
+## Security considerations
+
+TODO

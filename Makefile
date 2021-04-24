@@ -16,7 +16,8 @@ run: secrets/token setup ## run the app
 run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
 
-build: setup main.out ## create artifact
+build: setup ## create artifact
+	nix-build -A executable.binary
 
 lint: setup ## run static analysis
 	go fmt $(SOURCES)
@@ -34,9 +35,9 @@ env-up: ## set up dev environment
 env-down: ## tear down dev environment
 	docker rm -f $(CONTAINER_NAME)
 
-container: build ## create container
-	#docker build -t lmap .
-	@echo "Not implemented"; false
+container: setup ## create container
+	nix-build -A docker.image
+	docker load < result
 
 interact: ## helper process to run predefined inputs
 	# TODO: simple command runner with a few options that can be chosen at a keypress
