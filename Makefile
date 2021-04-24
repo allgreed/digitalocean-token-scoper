@@ -1,18 +1,19 @@
-SOURCES=main.go rules.go utils.go
-TESTS=rules_test.go
-# TODO: use magic functions to find all sources and tests
 PORT=8080
-
+CLIENT_SECRET=aaaa
 CONTAINER_NAME=do-token-scoper-companion
 CONTAINER_PORT=5678
 
+SOURCES=main.go rules.go utils.go
+TESTS=rules_test.go
+# TODO: use magic functions to find all sources and tests
+
 # Porcelain
 # ###############
-.PHONY: container run build lint test env-up env-down test-watch
+.PHONY: container run build lint test env-up env-down test-watch secrets
 
-run: secrets/token setup ## run the app
+run: secrets setup ## run the app
 	# TODO: ensure that env is running?
-	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_TOKEN_PATH=./secrets/token go run $(SOURCES)
+	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed APP_TOKEN_PATH=./secrets/token go run $(SOURCES)
 
 run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
@@ -42,11 +43,13 @@ container: setup ## create container
 
 interact: ## helper process to run predefined inputs
 	# TODO: simple command runner with a few options that can be chosen at a keypress
-	curl localhost:$(PORT) --silent -H "Authorization: aaaa" | jq
+	curl localhost:$(PORT) --silent -H "Authorization: $(CLIENT_SECRET)" | jq
 
 # Plumbing
 # ###############
-.PHONY: setup gitclean gitclean-with-libs
+.PHONY: setup gitclean gitclean-with-libs secrets
+
+secrets: secrets/token secrets/users/allgreed
 
 main.out: $(SOURCES)
 	go build -o $< $@
@@ -59,7 +62,11 @@ gitclean-with-libs:
 
 secrets/token:
 	mkdir -p secrets
-	echo "verymuchanexampletoken" > secrets/token
+	echo "verymuchanexampletoken" > $@
+
+secrets/users/allgreed:
+	mkdir -p secrets/users
+	echo "$(CLIENT_SECRET)" > $@
 
 # Helpers
 # ###############

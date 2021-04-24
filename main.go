@@ -15,12 +15,10 @@ import (
 )
 
 var (
-	target_url    *url.URL
-	do_token      string
-	port          string
-	token_to_user = map[string]string{
-		"aaaa": "allgreed",
-	}
+	target_url          *url.URL
+	do_token            string
+	port                string
+	token_to_user       = make(map[string]string)
 	user_to_permissions = map[string][]PermissionRule{
 		"allgreed": {AllowSingleDomainAllRecrodsAllActions{domain: "olgierd.space"}},
 	}
@@ -162,12 +160,7 @@ func main() {
 	}
 	target_url = _tu // golang what are u doin' golang stahp!
 
-	token_path := acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token")
-	_do_token, err := ioutil.ReadFile(token_path)
-	if err != nil {
-		log.Fatalf("Something went wrong when reading secret from %s, err: %s", token_path, err)
-	}
-	do_token = strings.TrimSpace(string(_do_token))
+	do_token = read_tokenfile(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token"))
 	// TODO: logs as json? will it work with loki and grafana?
 	// look at golang logging in more depth
 	// grep for `log` usage
@@ -182,8 +175,16 @@ func main() {
 	})
 	//https://github.com/sirupsen/logrus
 
-	// TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
-	// TODO: verify that all the tokens have corresponding user entries
+	users := []string{}
+	for k, _ := range user_to_permissions {
+		users = append(users, k)
+	}
+	for _, u := range users {
+		env_for_user := fmt.Sprintf("APP_USERTOKEN__%s", u)
+		default_path := fmt.Sprintf("/secrets/users/%s", u)
+		token := read_tokenfile(acquire_env_or_default(env_for_user, default_path))
+		token_to_user[token] = u
+	}
 
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
@@ -197,10 +198,10 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: parametrize the user token acquisition ^^
 	// TODO: put this into production
 	// TODO: update the README that it's working in production, but there are still paths to be covered
 
+	// TODO: automated functional tests - run and hit it with a request - 1 fails one passes
 	// TODO: logs! ^^
 	// TODO: setup CI
 	// TODO: write the LB rule
@@ -209,7 +210,8 @@ func main() {
 	// TODO: ask for a 3rd party security audit
 	// TODO: update info that it's working , but not really production quality
 
-    // TODO: parametrize user config permissions
+	// TODO: automated E2E tests (k8s example)
+	// TODO: parametrize user config permissions
 	// TODO: add health and ready url
 	// TODO: add metrics
 	// TODO: add proper usage (local / k8s examples), etc to the README
