@@ -15,7 +15,7 @@ func acquire_env_or_default(key string, fallback string) string {
 		return value
 	}
 
-	log.Printf("Defaulting to %s=%s\n", key, fallback)
+	log.Printf("Defaulting to %s=%s", key, fallback)
 	return fallback
 }
 

@@ -8,7 +8,7 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 ## Usage
 It's heavily alpha right now - it's proven to work, but ~may~ will require editing source code of PoC quality for your usecase
 
-User tokens and usernames are fairly arbitrary, however for the development purpose I'm assuming alphanumeric ASCII.
+Usernames are fairly arbitrary, however for the development purpose I'm assuming alphanumeric ASCII and that tokens don't contain significant whitespace.
 
 For now go for [dev](#dev)
 

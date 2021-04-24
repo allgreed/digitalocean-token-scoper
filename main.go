@@ -21,6 +21,7 @@ var (
 	token_to_user       = make(map[string]string)
 	user_to_permissions = map[string][]PermissionRule{
 		"allgreed": {AllowSingleDomainAllRecrodsAllActions{domain: "olgierd.space"}},
+		"dawid": {AllowSingleDomainAllRecrodsAllActions{domain: "tygrys.me"}},
 	}
 )
 
@@ -162,7 +163,7 @@ func main() {
 	}
 	target_url = _tu // golang what are u doin' golang stahp!
 
-	do_token = read_tokenfile(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token"))
+	do_token = read_tokenfile(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token/secret"))
 
 	users := []string{}
 	for k, _ := range user_to_permissions {
@@ -170,7 +171,7 @@ func main() {
 	}
 	for _, u := range users {
 		env_for_user := fmt.Sprintf("APP_USERTOKEN__%s", u)
-		default_path := fmt.Sprintf("/secrets/users/%s", u)
+		default_path := fmt.Sprintf("/secrets/users/%s/secret", u)
 		token := read_tokenfile(acquire_env_or_default(env_for_user, default_path))
 		token_to_user[token] = u
 	}
@@ -190,14 +191,16 @@ func main() {
 	// TODO: put this into production
 	// TODO: update the README that it's working in production, but there are still paths to be covered
 
-	// TODO: automated functional tests - run and hit it with a request - 1 fails one passes
-	// TODO: logs! ^^
+	// TODO: json logs! ^^
 	// TODO: setup CI
-	// TODO: write the LB rule
+	// TODO: automated functional tests - run and hit it with a request - 1 fails one passes
+
 	// TODO: add a section on how to use and create rules
-	// TODO: cover minor todos
+	// TODO: write the LB rule
+
+	// TODO: cover minor todos - `make todo`
 	// TODO: ask for a 3rd party security audit
-	// TODO: update info that it's working , but not really production quality
+	// TODO: update info that it's working , but not yet production quality
 
 	// TODO: automated E2E tests (k8s example)
 	// TODO: parametrize user config permissions
@@ -207,5 +210,6 @@ func main() {
 	// TODO: add badges -> snyk vulnearbilities,  drone passing, test coverage, codeclimate style
 	// TODO: setup dependency monitoring
 	// https://github.com/dwyl/repo-badges
-	// TODO: update info to mention when the project was first deployed - that it should work and be of decent quality, but it's still young
+	// TODO: delete quality disclaimers - this will remain <1.0.0 until I figure out how to sensibly configure permissions without hardcoding them
+        // TODO: add a github issue for that!
 }
