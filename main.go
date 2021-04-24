@@ -2,9 +2,9 @@
 package main
 
 import (
+	"fmt"
 	uuid "github.com/pborman/uuid"
 	log "github.com/sirupsen/logrus"
-    "fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,12 +16,12 @@ import (
 )
 
 var (
-	target_url *url.URL
-	do_token   string
-	port       string
-    token_to_user = map[string]string {
-        "aaaa": "testowy",
-    }
+	target_url    *url.URL
+	do_token      string
+	port          string
+	token_to_user = map[string]string{
+		"aaaa": "testowy",
+	}
 	user_to_permissions = map[string][]PermissionRule{
 		"testowy": {AllowAll{}},
 	}
@@ -45,7 +45,6 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	token := _token[0]
 
-
 	user, ok := token_to_user[token]
 	if !ok {
 		http.Error(w, "Please provide a valid token in the Authorization header", 401)
@@ -56,21 +55,20 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		"user": user,
 	}).Info("Authenticated")
 
-
 	permissions, ok := user_to_permissions[user]
 	if !ok {
-        logger.Panic("Entry for authenticated user missing from permisson table, something went terribly wrong!")
+		logger.Panic("Entry for authenticated user missing from permisson table, something went terribly wrong!")
 	}
 
 	ar, err := url_to_auth_request(r.URL, r.Method)
-    if err != nil {
-        // TODO: fix this up
-        //http.Error(w, "You don't have access to that resource with that method", 403)
-        //logger.WithFields(log.Fields{
-            //"ar": ar,
-        //}).Warn("Unauthorized action attempt")
-        return
-    }
+	if err != nil {
+		// TODO: fix this up
+		//http.Error(w, "You don't have access to that resource with that method", 403)
+		//logger.WithFields(log.Fields{
+		//"ar": ar,
+		//}).Warn("Unauthorized action attempt")
+		return
+	}
 	effectivePermissionRules := append(permissions, DenyAll{})
 
 	logger.WithFields(log.Fields{
@@ -96,7 +94,6 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	logger.Info("Authorized")
-
 
 	hh := http.Header{}
 	for k, v := range r.Header {
@@ -167,11 +164,10 @@ func acquire_env_or_fail(key string) string {
 
 func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
 	// TODO: do some serializaion to make sure we're on the same page
-    // TODO: rewrite tests to use new values?
-    // TODO: is this actuall needed?
+	// TODO: rewrite tests to use new values?
+	// TODO: is this actuall needed?
 	return AuthorizationRequest{path: u.Path, method: m}, nil
 }
-
 
 func main() {
 	_port := acquire_env_or_fail("APP_PORT")
@@ -202,11 +198,10 @@ func main() {
 		DisableColors: true,
 		FullTimestamp: true,
 	})
-    //https://github.com/sirupsen/logrus
+	//https://github.com/sirupsen/logrus
 
 	// TODO: populate auth from some kind of config? -> map tokens from secret files based on username to permissions
-    // TODO: verify that all the tokens have corresponding user entries
-
+	// TODO: verify that all the tokens have corresponding user entries
 
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
@@ -223,18 +218,18 @@ func main() {
 	// TODO: build with nix
 	// TODO: create minimal container
 	// TODO: setup CI
-    // TODO: test it E2E - in production :D
+	// TODO: test it E2E - in production :D
 	// TODO: update the README that it's working, but there are still paths to be covered
 
 	// TODO: add a section on how to use and create rules
-    // TODO: cover minor todos
-    // TODO: update info that it's working , but not really production quality
+	// TODO: cover minor todos
+	// TODO: update info that it's working , but not really production quality
 
 	// TODO: add health and ready url
 	// TODO: add metrics
 	// TODO: add proper usage (local / k8s examples), etc to the README
-    // TODO: add badges -> snyk vulnearbilities,  drone passing, test coverage, codeclimate style
-    // TODO: setup dependency monitoring
-    // https://github.com/dwyl/repo-badges
-    // TODO: update info to mention when the project was first deployed - that it should work and be of decent quality, but it's still young
+	// TODO: add badges -> snyk vulnearbilities,  drone passing, test coverage, codeclimate style
+	// TODO: setup dependency monitoring
+	// https://github.com/dwyl/repo-badges
+	// TODO: update info to mention when the project was first deployed - that it should work and be of decent quality, but it's still young
 }
