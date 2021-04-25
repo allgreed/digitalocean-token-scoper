@@ -168,8 +168,6 @@ func main() {
 	log.Fatal(s.ListenAndServe())
 
 	// TODO: finish the CI
-	// TODO: better nix shell!
-	// TODO: reuse nix shell across CI steps
 
 	// TODO: add a section on how to use and create rules
 	// TODO: write the LB rule

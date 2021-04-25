@@ -16,7 +16,7 @@ LINTFLAGS := -e -s
 
 run: secrets setup ## run the app
 	# TODO: ensure that env is running?
-	APP_LOG_LEVEL=debug APP_LOG_FORMAT=text APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed/secret APP_TOKEN_PATH=./secrets/token/secret APP_USERTOKEN__dawid=./secrets/users/dawid/secret go run $(SOURCES)
+	APP_LOG_LEVEL=debug APP_LOG_FORMAT=text APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed/secret APP_TOKEN_PATH=./secrets/token/secret APP_USERTOKEN__dawid=./secrets/users/dawid/secret go run -mod=readonly $(SOURCES)
 
 run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run

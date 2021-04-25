@@ -95,16 +95,16 @@ steps:
     #branch:
     #- master
 
-- name: push-release-container-image
-  image: allgreed/drone-load-and-store
-  settings:
-    archive: docker-image.tar.gz
-    repo: allgreed/digitalocean-token-scoper
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-  when:
-    branch:
-    - master
+#- name: push-release-container-image
+  #image: allgreed/drone-load-and-store
+  #settings:
+    #archive: docker-image.tar.gz
+    #repo: allgreed/digitalocean-token-scoper
+    #username:
+      #from_secret: docker_username
+    #password:
+      #from_secret: docker_password
+  #when:
+    #branch:
+    #- master
 # TODO: bump patch version and release
