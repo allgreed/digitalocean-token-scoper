@@ -40,9 +40,10 @@ with pkgs; rec {
       platforms = platforms.linux;
     };
   };
-  docker.image = pkgs.dockerTools.buildImage {
+  docker.image = pkgs.dockerTools.buildLayeredImage {
     name = pname;
     tag = version;
+    maxLayers = 30; # https://nixos.org/manual/nixpkgs/stable/#ssec-pkgs-dockerTools-buildLayeredImage
 
     created = "now";
 
