@@ -13,6 +13,12 @@ Usernames are fairly arbitrary, however for the development purpose I'm assuming
 
 For now go for [dev](#dev)
 
+### Permission model
+- rules are applied sequentially in order
+- if a rule applies then it's the authority on weather grant or deny access
+- by default DenyAll is appended at the end of the rule chain
+
+
 ## Dev
 
 ### Prerequisites
@@ -33,14 +39,7 @@ make init
 make help
 ```
 
-### Rules
-
-#### Permission model
-- rules are applied sequentially in order
-- if a rule applies then it's the authority on weather grant or deny access
-- by default DenyAll is appended at the end of the rule chain
-
-#### Adding new rules
+### Adding new rules
 - in `./rules_test.go` append your test cases to `rulestest` (at the end)
 - in `./rules.go`, add and fill: 
 ```
