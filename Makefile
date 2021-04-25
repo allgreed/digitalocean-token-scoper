@@ -13,7 +13,7 @@ TESTS=rules_test.go
 
 run: secrets setup ## run the app
 	# TODO: ensure that env is running?
-	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed APP_TOKEN_PATH=./secrets/token go run $(SOURCES)
+	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed/secret APP_TOKEN_PATH=./secrets/token/secret APP_USERTOKEN__dawid=./secrets/users/dawid/secret go run $(SOURCES)
 
 run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
@@ -43,7 +43,7 @@ container: setup ## create container
 
 interact: ## helper process to run predefined inputs
 	# TODO: simple command runner with a few options that can be chosen at a keypress
-	curl localhost:$(PORT) --silent -H "Authorization: $(CLIENT_SECRET)a" | jq
+	curl http://localhost:$(PORT)/v2/domains/olgierd.space/records --silent -H "Authorization: Bearer $(CLIENT_SECRET)" | jq
 
 # Plumbing
 # ###############
@@ -66,11 +66,11 @@ secrets/token/secret:
 
 secrets/users/allgreed/secret:
 	mkdir -p secrets/users/allgreed
-	echo "$(CLIENT_SECRET)a" > $@
+	echo "$(CLIENT_SECRET)" > $@
 
 secrets/users/dawid/secret:
 	mkdir -p secrets/users/dawid
-	echo "$(CLIENT_SECRET)b" > $@
+	echo "very much whatever" > $@
 
 # Helpers
 # ###############

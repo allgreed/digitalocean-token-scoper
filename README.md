@@ -6,7 +6,7 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
 
 ## Usage
-It's heavily alpha right now - it's proven to work, but ~may~ will require editing source code of PoC quality for your usecase
+It's heavily alpha right now - it's running in production, but ~may~ will require editing source code for setting permissions
 
 Usernames are fairly arbitrary, however for the development purpose I'm assuming alphanumeric ASCII and that tokens don't contain significant whitespace.
 

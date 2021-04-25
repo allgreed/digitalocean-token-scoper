@@ -41,7 +41,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Missing token, aborting")
 		return
 	}
-	token := _token[0]
+	token := strings.Replace(_token[0], "Bearer ", "", 1)
 
 	user, ok := token_to_user[token]
 	if !ok {
@@ -189,9 +189,6 @@ func main() {
 	}
 
 	log.Fatal(s.ListenAndServe())
-
-	// TODO: put this into production
-	// TODO: update the README that it's working in production, but there are still paths to be covered
 
 	// TODO: json logs! ^^
 	// TODO: setup CI

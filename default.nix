@@ -10,7 +10,7 @@ let
 in
 with pkgs; rec {
   pname = "digitalocean-token-scoper";
-  version = "0.1.3";
+  version = "0.1.4";
   shell = mkShell {
     buildInputs = [
       git
