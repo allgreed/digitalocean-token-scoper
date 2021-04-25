@@ -22,7 +22,10 @@ build: setup ## create artifact
 	nix-build -A executable.binary
 
 lint: setup ## run static analysis
-	go fmt $(SOURCES)
+	gofmt -e -w $(SOURCES)
+#-s
+lint-check: setup ## run static analysis - for CI
+	test -z "$$(gofmt -e -l .)"
 
 test: setup ## run all tests
 	go test

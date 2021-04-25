@@ -1,4 +1,5 @@
 package main
+
 // heavily based on https://github.com/davidfstr/nanoproxy
 
 import (
@@ -21,7 +22,7 @@ var (
 	token_to_user       = make(map[string]string)
 	user_to_permissions = map[string][]PermissionRule{
 		"allgreed": {AllowSingleDomainAllRecrodsAllActions{domain: "olgierd.space"}},
-		"dawid": {AllowSingleDomainAllRecrodsAllActions{domain: "tygrys.me"}},
+		"dawid":    {AllowSingleDomainAllRecrodsAllActions{domain: "tygrys.me"}},
 	}
 )
 
@@ -119,8 +120,8 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		JSONError(w, "Could not reach origin server", 500)
 		// TODO: fix this - what info should be passed? maybe even error!
 		logger.WithFields(log.Fields{
-            "err": err,
-        }).Warn("Wabababababa")
+			"err": err,
+		}).Warn("Wabababababa")
 		return
 	}
 	defer resp.Body.Close()
@@ -152,7 +153,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-    configure()
+	configure()
 
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
@@ -166,18 +167,18 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-    // TODO: wrap up CI - setup automatic deployment of new versions!
-    // TODO: better nix shell!
+	// TODO: wrap up CI - setup automatic deployment of new versions!
+	// TODO: better nix shell!
 
 	// TODO: add a section on how to use and create rules
 	// TODO: write the LB rule
-    // TODO: 0.3.0
+	// TODO: 0.3.0
 
 	// TODO: figure out how to sensibly configure permissions without hardcoding them
 
 	// TODO: cover minor todos - `make todo`
 	// TODO: ask for a 3rd party security audit
-    // TODO: release 1.0.0
+	// TODO: release 1.0.0
 
 	// TODO: automated E2E tests (k8s example) - for manual running?
 	// TODO: add health and ready url

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -8,7 +9,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-    "bytes"
 )
 
 type OutputSplitter struct{}
@@ -63,8 +63,8 @@ func read_tokenfile(p string) string {
 }
 
 func (splitter *OutputSplitter) Write(p []byte) (n int, err error) {
-    if bytes.Contains(p, []byte("level=error")) || bytes.Contains(p, []byte("level=warn")) || bytes.Contains(p, []byte("level=panic")) || bytes.Contains(p, []byte("level=fatal")){
-        return os.Stderr.Write(p)
-    }
-    return os.Stdout.Write(p)
+	if bytes.Contains(p, []byte("level=error")) || bytes.Contains(p, []byte("level=warn")) || bytes.Contains(p, []byte("level=panic")) || bytes.Contains(p, []byte("level=fatal")) {
+		return os.Stderr.Write(p)
+	}
+	return os.Stdout.Write(p)
 }

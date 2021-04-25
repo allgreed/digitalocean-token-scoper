@@ -34,31 +34,31 @@ func configure() {
 }
 
 func initialize_logging() {
-    log_format := acquire_env_or_default_silent("APP_LOG_FORMAT", "json")
+	log_format := acquire_env_or_default_silent("APP_LOG_FORMAT", "json")
 
-    if log_format == "text" {
-        log.SetFormatter(&log.TextFormatter{
-            DisableColors: true,
-            FullTimestamp: true,
-        })
-    } else {
-        log.SetFormatter(&log.JSONFormatter{})
-    }
+	if log_format == "text" {
+		log.SetFormatter(&log.TextFormatter{
+			DisableColors: true,
+			FullTimestamp: true,
+		})
+	} else {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
 
-    _log_level := acquire_env_or_default("APP_LOG_LEVEL", "info")
-    log_level_resolution := map[string]log.Level {
-        "debug": log.DebugLevel,
-        "info": log.InfoLevel,
-    }
+	_log_level := acquire_env_or_default("APP_LOG_LEVEL", "info")
+	log_level_resolution := map[string]log.Level{
+		"debug": log.DebugLevel,
+		"info":  log.InfoLevel,
+	}
 
-    log_level, found := log_level_resolution[_log_level]
-    if !found {
-        log_level = log.InfoLevel
-        log.WithFields(log.Fields{
-            "input_level": _log_level,
-        }).Info("Unrecognised log level, falling back to Info")
-    }
+	log_level, found := log_level_resolution[_log_level]
+	if !found {
+		log_level = log.InfoLevel
+		log.WithFields(log.Fields{
+			"input_level": _log_level,
+		}).Info("Unrecognised log level, falling back to Info")
+	}
 	log.SetLevel(log_level)
 
-    log.SetOutput(&OutputSplitter{})
+	log.SetOutput(&OutputSplitter{})
 }
