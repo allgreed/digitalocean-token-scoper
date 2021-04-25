@@ -169,10 +169,10 @@ func main() {
 
 	// TODO: finish the CI
 
-	// TODO: add a section on how to use and create rules
 	// TODO: write the LB rule
 	// TODO: 0.3.0
 
+	// TODO: speed up nix CI
 	// TODO: figure out how to sensibly configure permissions without hardcoding them
 
 	// TODO: cover minor todos - `make todo`

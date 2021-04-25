@@ -10,6 +10,7 @@ services:
 - name: companion
   image: ealen/echo-server:0.5.0
 steps:
+# TODO: see Makefile
 # TODO: if version not already uploaded - release new versioned image
   # else: fail
   # only on master
