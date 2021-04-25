@@ -118,7 +118,9 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		// TODO: relay more info ?
 		JSONError(w, "Could not reach origin server", 500)
 		// TODO: fix this - what info should be passed? maybe even error!
-		logger.WithFields(log.Fields{}).Warn("Wabababababa")
+		logger.WithFields(log.Fields{
+            "err": err,
+        }).Warn("Wabababababa")
 		return
 	}
 	defer resp.Body.Close()

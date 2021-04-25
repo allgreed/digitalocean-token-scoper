@@ -10,7 +10,7 @@ let
 in
 with pkgs; rec {
   pname = "digitalocean-token-scoper";
-  version = "0.1.1";
+  version = "0.1.3";
   shell = mkShell {
     buildInputs = [
       git
@@ -46,7 +46,7 @@ with pkgs; rec {
 
     created = "now";
 
-    contents = executable.binary;
+    contents = [ executable.binary cacert ];
 
     config = {
       Cmd = [
@@ -56,6 +56,10 @@ with pkgs; rec {
       ExposedPorts = {
         "80/tcp" = {};
       };
+
+      Env = [
+        "SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt"
+      ];
     };
   };
 }

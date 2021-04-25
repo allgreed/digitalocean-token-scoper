@@ -43,13 +43,13 @@ container: setup ## create container
 
 interact: ## helper process to run predefined inputs
 	# TODO: simple command runner with a few options that can be chosen at a keypress
-	curl localhost:$(PORT) --silent -H "Authorization: $(CLIENT_SECRET)" | jq
+	curl localhost:$(PORT) --silent -H "Authorization: $(CLIENT_SECRET)a" | jq
 
 # Plumbing
 # ###############
 .PHONY: setup gitclean gitclean-with-libs secrets
 
-secrets: secrets/token secrets/users/allgreed
+secrets: secrets/token/secret secrets/users/allgreed/secret secrets/users/dawid/secret
 
 main.out: $(SOURCES)
 	go build -o $< $@
@@ -60,13 +60,17 @@ gitclean:
 
 gitclean-with-libs:
 
-secrets/token:
-	mkdir -p secrets
+secrets/token/secret:
+	mkdir -p secrets/token
 	echo "verymuchanexampletoken" > $@
 
-secrets/users/allgreed:
-	mkdir -p secrets/users
-	echo "$(CLIENT_SECRET)" > $@
+secrets/users/allgreed/secret:
+	mkdir -p secrets/users/allgreed
+	echo "$(CLIENT_SECRET)a" > $@
+
+secrets/users/dawid/secret:
+	mkdir -p secrets/users/dawid
+	echo "$(CLIENT_SECRET)b" > $@
 
 # Helpers
 # ###############
