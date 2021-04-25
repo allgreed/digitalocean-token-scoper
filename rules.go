@@ -32,13 +32,13 @@ func (_ DenyAll) is_applicable(_ AuthorizationRequest) bool {
 	return true
 }
 
-type AllowSingleDomainAllRecrodsAllActions struct{ domain string }
+type AllowSingleDomainAllRecordsAllActions struct{ domain string }
 
-func (_ AllowSingleDomainAllRecrodsAllActions) can_i(_ AuthorizationRequest) bool {
+func (_ AllowSingleDomainAllRecordsAllActions) can_i(_ AuthorizationRequest) bool {
 	return true
 }
-func (rule AllowSingleDomainAllRecrodsAllActions) is_applicable(ar AuthorizationRequest) bool {
-	rgx := regexp.MustCompile(`\/v2\/domains\/((?:\w+\.)*\w+)\/records(?:\/\d+)?$`)
+func (rule AllowSingleDomainAllRecordsAllActions) is_applicable(ar AuthorizationRequest) bool {
+	rgx := regexp.MustCompile(`^\/v2\/domains\/((?:\w+\.)*\w+)\/records(?:\/\d+)?$`)
 	rs := rgx.FindStringSubmatch(ar.path)
 
 	if len(rs) == 2 {
@@ -48,5 +48,20 @@ func (rule AllowSingleDomainAllRecrodsAllActions) is_applicable(ar Authorization
 	}
 }
 
-// TODO: add rules for manipulating particular LB
+type AllowLoadBalancersForwardingRule struct{ lb_id string }
+
+func (_ AllowLoadBalancersForwardingRule) can_i(_ AuthorizationRequest) bool {
+	return true
+}
+func (rule AllowLoadBalancersForwardingRule) is_applicable(ar AuthorizationRequest) bool {
+	rgx := regexp.MustCompile(`^\/v2\/load_balancers\/([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})\/forwarding_rule$`)
+	rs := rgx.FindStringSubmatch(ar.path)
+
+	if len(rs) == 2 {
+		return rs[1] == rule.lb_id
+	} else {
+		return false
+	}
+}
+
 // TODO: create an issue about body authentication -> why I don't need it yet and how to do it => also: take into account changing the logging!

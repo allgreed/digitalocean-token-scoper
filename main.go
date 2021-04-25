@@ -4,8 +4,10 @@ package main
 
 import (
 	"fmt"
+
 	uuid "github.com/pborman/uuid"
 	log "github.com/sirupsen/logrus"
+
 	//"io"
 	"io/ioutil"
 	"net/http"
@@ -21,8 +23,8 @@ var (
 	port                string
 	token_to_user       = make(map[string]string)
 	user_to_permissions = map[string][]PermissionRule{
-		"allgreed": {AllowSingleDomainAllRecrodsAllActions{domain: "olgierd.space"}},
-		"dawid":    {AllowSingleDomainAllRecrodsAllActions{domain: "tygrys.me"}},
+		"allgreed": {AllowSingleDomainAllRecordsAllActions{domain: "olgierd.space"}},
+		"dawid":    {AllowSingleDomainAllRecordsAllActions{domain: "tygrys.me"}, AllowLoadBalancersForwardingRule{lb_id: "9e626efb-af53-42a0-9a8c-319b102ac33c"}},
 	}
 )
 
