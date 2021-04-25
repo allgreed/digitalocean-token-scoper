@@ -6,6 +6,7 @@ CONTAINER_PORT=5678
 SOURCES=main.go rules.go utils.go config.go
 TESTS=rules_test.go
 # TODO: use magic functions to find all sources and tests
+DOCKER_PROJECT := allgreed/digitalocean-token-scoper
 
 LINTFLAGS := -e -s
 
@@ -45,9 +46,6 @@ env-down: ## tear down dev environment
 container: setup ## create container
 	nix-build -A docker.image
 
-container-full: setup container ## create and load the image to the local repository
-	docker load < result
-
 interact: ## helper process to run predefined inputs
 	# TODO: simple command runner with a few options that can be chosen at a keypress
 	curl http://localhost:$(PORT)/v2/domains/olgierd.space/records --silent -H "Authorization: Bearer $(CLIENT_SECRET)" | jq
@@ -81,7 +79,14 @@ secrets/users/dawid/secret:
 
 # Helpers
 # ###############
-.PHONY:
+.PHONY: container-full
+
+container-full: setup container ## create and load the image to the local repository
+	docker load < result
+
+check-version-uploaded:
+	# TODO: get actual version
+	curl --silent -f -lSL https://index.docker.io/v1/repositories/$(DOCKER_PROJECT)/tags/$$(echo 0.1.0) > /dev/null
 
 # Utilities
 # ###############
