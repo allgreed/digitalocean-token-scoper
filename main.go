@@ -1,5 +1,5 @@
-// heavily based on https://github.com/davidfstr/nanoproxy
 package main
+// heavily based on https://github.com/davidfstr/nanoproxy
 
 import (
 	"fmt"
@@ -129,7 +129,6 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	for hk, hv := range resp.Header {
 		respH[hk] = hv
 	}
-	fmt.Println(resp.Body)
 	w.WriteHeader(resp.StatusCode)
 	//if resp.ContentLength > 0 {
 	//// ignore I/O errors, since there's nothing we can do
@@ -153,30 +152,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	initialize_logging() // this has to be first to ensure log consistency
-
-	_port := acquire_env_or_default("APP_PORT", "80")
-	port = ":" + _port
-
-	_target_url := acquire_env_or_default("APP_TARGET_URL", "https://api.digitalocean.com/")
-	_tu, err := url.Parse(_target_url)
-	if err != nil {
-		log.Fatalf("Something went wrong when processing APP_TARGET_URL, err: %s", err)
-	}
-	target_url = _tu // golang what are u doin' golang stahp!
-
-	do_token = read_tokenfile(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token/secret"))
-
-	users := []string{}
-	for k, _ := range user_to_permissions {
-		users = append(users, k)
-	}
-	for _, u := range users {
-		env_for_user := fmt.Sprintf("APP_USERTOKEN__%s", u)
-		default_path := fmt.Sprintf("/secrets/users/%s/secret", u)
-		token := read_tokenfile(acquire_env_or_default(env_for_user, default_path))
-		token_to_user[token] = u
-	}
+    configure()
 
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
@@ -190,25 +166,24 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: json logs! ^^
 	// TODO: setup CI
 	// TODO: automated functional tests - run and hit it with a request - 1 fails one passes
 
 	// TODO: add a section on how to use and create rules
 	// TODO: write the LB rule
+    // TODO: 0.3.0
+
+	// TODO: figure out how to sensibly configure permissions without hardcoding them
 
 	// TODO: cover minor todos - `make todo`
 	// TODO: ask for a 3rd party security audit
-	// TODO: update info that it's working , but not yet production quality
+    // TODO: release 1.0.0
 
 	// TODO: automated E2E tests (k8s example)
-	// TODO: parametrize user config permissions
 	// TODO: add health and ready url
 	// TODO: add metrics
 	// TODO: add proper usage (local / k8s examples), etc to the README
 	// TODO: add badges -> snyk vulnearbilities,  drone passing, test coverage, codeclimate style
 	// TODO: setup dependency monitoring
 	// https://github.com/dwyl/repo-badges
-	// TODO: delete quality disclaimers - this will remain <1.0.0 until I figure out how to sensibly configure permissions without hardcoding them
-        // TODO: add a github issue for that!
 }

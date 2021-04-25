@@ -8,7 +8,10 @@ import (
 	"net/url"
 	"os"
 	"strings"
+    "bytes"
 )
+
+type OutputSplitter struct{}
 
 func acquire_env_or_default(key string, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -16,6 +19,14 @@ func acquire_env_or_default(key string, fallback string) string {
 	}
 
 	log.Printf("Defaulting to %s=%s", key, fallback)
+	return fallback
+}
+
+func acquire_env_or_default_silent(key string, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+
 	return fallback
 }
 
@@ -51,18 +62,9 @@ func read_tokenfile(p string) string {
 	return strings.TrimSpace(string(_content))
 }
 
-func initialize_logging() {
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: true,
-	})
-	// TODO: logs as json? will it work with loki and grafana?
-	// look at golang logging in more depth
-	// grep for `log` usage
-	// TODO: output errors to stderr, and the rest to stdout
-	//log.SetOutput(os.Stdout)
-	// TODO: logging based on envvar
-	//log.SetFormatter(&log.JSONFormatter{})
-	log.SetLevel(log.DebugLevel)
-	//https://github.com/sirupsen/logrus
+func (splitter *OutputSplitter) Write(p []byte) (n int, err error) {
+    if bytes.Contains(p, []byte("level=error")) || bytes.Contains(p, []byte("level=warn")) || bytes.Contains(p, []byte("level=panic")) || bytes.Contains(p, []byte("level=fatal")){
+        return os.Stderr.Write(p)
+    }
+    return os.Stdout.Write(p)
 }

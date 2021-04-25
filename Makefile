@@ -3,7 +3,7 @@ CLIENT_SECRET=aaaa
 CONTAINER_NAME=do-token-scoper-companion
 CONTAINER_PORT=5678
 
-SOURCES=main.go rules.go utils.go
+SOURCES=main.go rules.go utils.go config.go
 TESTS=rules_test.go
 # TODO: use magic functions to find all sources and tests
 
@@ -13,7 +13,7 @@ TESTS=rules_test.go
 
 run: secrets setup ## run the app
 	# TODO: ensure that env is running?
-	APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed/secret APP_TOKEN_PATH=./secrets/token/secret APP_USERTOKEN__dawid=./secrets/users/dawid/secret go run $(SOURCES)
+	APP_LOG_LEVEL=debug APP_LOG_FORMAT=text APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed/secret APP_TOKEN_PATH=./secrets/token/secret APP_USERTOKEN__dawid=./secrets/users/dawid/secret go run $(SOURCES)
 
 run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
