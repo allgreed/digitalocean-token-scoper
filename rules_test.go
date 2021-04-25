@@ -147,15 +147,6 @@ var rulestest = []struct {
 	},
 	{
 		AuthorizationRequest{
-			path:   "/v2/load_balancers/054c04f8-0b7a-40e6-a6ce-bf15b798b2ea/forwarding_rule",
-			method: "WHATEVER",
-		},
-		AllowLoadBalancersForwardingRule{lb_id: "054c04f8-0b7a-40e6-a6ce-bf15b798b2ea"},
-		true,
-		true,
-	},
-	{
-		AuthorizationRequest{
 			path:   "/v2/load_balancers/9e143319-4c08-4d00-9ce5-8e2fd38d90ea/forwarding_rule?/v2/load_balancers/054c04f8-0b7a-40e6-a6ce-bf15b798b2ea/forwarding_rule",
 			method: "WHATEVER",
 		},
