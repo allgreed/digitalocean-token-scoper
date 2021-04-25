@@ -39,6 +39,8 @@ env-down: ## tear down dev environment
 
 container: setup ## create container
 	nix-build -A docker.image
+
+container-full: setup container ## create and load the image to the local repository
 	docker load < result
 
 interact: ## helper process to run predefined inputs

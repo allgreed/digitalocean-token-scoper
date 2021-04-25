@@ -10,7 +10,6 @@ trigger:
 steps:
     # TODO: lint check
       # TODO: actaully implement lint command
-    # TODO: test
 
 - name: container-backend
   image: allgreed/nix:2.3.6

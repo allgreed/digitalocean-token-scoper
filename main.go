@@ -166,8 +166,8 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: setup CI
-    // TODO: setup automatic deployment of new versions!
+    // TODO: wrap up CI - setup automatic deployment of new versions!
+    // TODO: better nix shell!
 
 	// TODO: add a section on how to use and create rules
 	// TODO: write the LB rule
