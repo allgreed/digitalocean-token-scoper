@@ -6,19 +6,26 @@ trigger:
   event:
     exclude:
     - pull_request
-
+services:
+- name: companion
+  image: ealen/echo-server:0.5.0
 steps:
-    # TODO: lint check
-      # TODO: actaully implement lint command
-
-- name: container-backend
+- name: lint
   image: allgreed/nix:2.3.6
   commands:
-  - echo -n "preview$DRONE_COMMIT_SHA" > .tags
+  - nix-shell --quiet --run 'make lint-check'
+
+# TODO: if version not already uploaded - release new versioned image
+  # else: fail
+  # only on master
+- name: container
+  image: allgreed/nix:2.3.6
+  commands:
+  - echo -n "preview-$DRONE_COMMIT_SHA" > .tags
   - nix-shell --quiet --run 'make container'
   - mv $(readlink -f result) docker-image.tar.gz # need to persist the image between stages and Drone only mounts CWD, so symlinks would fail
 
-- name: push-preview-container-image
+- name: push-container-image
   image: allgreed/drone-load-and-store
   settings:
     archive: docker-image.tar.gz
@@ -27,21 +34,51 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
+
+- name: preapre-functional-env
+  image: allgreed/nix:2.3.6
+  commands:
+  - nix-shell --quiet --run 'make secrets'
+
+- name: run digitalocean-token-scoper
+  image: allgreed/digitalocean-token-scoper:preview-${DRONE_COMMIT_SHA}
+  environment:
+    APP_LOG_LEVEL: "debug"
+    APP_LOG_FORMAT: "text"
+    APP_PORT: "8080"
+    APP_TARGET_URL: "http://companion"
+    APP_USERTOKEN__allgreed: "./secrets/users/allgreed/secret"
+    APP_USERTOKEN__dawid: "./secrets/users/dawid/secret"
+    APP_TOKEN_PATH: "./secrets/token/secret"
+  detach: true
+
+- name: functional tests
+  image: allgreed/nix:2.3.6
+  commands:
+  - nix-shell --quiet --run 'make interact'
+  # TODO: add assertions and a real test script
+    # one requests fails, one passes
+    # only on master and master prs
+
+#- name: release-container
+  #image: allgreed/nix:2.3.6
+  #commands:
+    ## TODO: build proper release array
+  #- echo -n "preview$DRONE_COMMIT_SHA" > .tags
   #when:
     #branch:
     #- master
 
-    # TODO: functional test  
-      # without docker
-      # one requests fails, one passes
-      # only on master and master prs
-      # remove the docker upload step
-
-    # TODO: if version not already uploaded - release new versioned image
-      # else: fail
-      # only on master
-
-#- name: init
-  #image: allgreed/nix:2.3.6
-  #commands:
-  #- echo -n "preview$DRONE_COMMIT_SHA" > .tags
+- name: push-release-container-image
+  image: allgreed/drone-load-and-store
+  settings:
+    archive: docker-image.tar.gz
+    repo: allgreed/digitalocean-token-scoper
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  when:
+    branch:
+    - master
+# TODO: bump patch version and release

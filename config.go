@@ -22,7 +22,7 @@ func configure() {
 	do_token = read_tokenfile(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token/secret"))
 
 	users := []string{}
-	for k, _ := range user_to_permissions {
+	for k := range user_to_permissions {
 		users = append(users, k)
 	}
 	for _, u := range users {

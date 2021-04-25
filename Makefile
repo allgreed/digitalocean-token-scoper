@@ -7,6 +7,8 @@ SOURCES=main.go rules.go utils.go config.go
 TESTS=rules_test.go
 # TODO: use magic functions to find all sources and tests
 
+LINTFLAGS := -e -s
+
 # Porcelain
 # ###############
 .PHONY: container run build lint test env-up env-down test-watch secrets
@@ -22,10 +24,10 @@ build: setup ## create artifact
 	nix-build -A executable.binary
 
 lint: setup ## run static analysis
-	gofmt -e -w $(SOURCES)
-#-s
+	gofmt $(LINTFLAGS) -w $(SOURCES)
+
 lint-check: setup ## run static analysis - for CI
-	test -z "$$(gofmt -e -l .)"
+	test -z "$$(gofmt $(LINTFLAGS) -l .)"
 
 test: setup ## run all tests
 	go test
