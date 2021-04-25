@@ -167,7 +167,7 @@ func main() {
 	log.Fatal(s.ListenAndServe())
 
 	// TODO: setup CI
-	// TODO: automated functional tests - run and hit it with a request - 1 fails one passes
+    // TODO: setup automatic deployment of new versions!
 
 	// TODO: add a section on how to use and create rules
 	// TODO: write the LB rule
@@ -179,11 +179,11 @@ func main() {
 	// TODO: ask for a 3rd party security audit
     // TODO: release 1.0.0
 
-	// TODO: automated E2E tests (k8s example)
+	// TODO: automated E2E tests (k8s example) - for manual running?
 	// TODO: add health and ready url
 	// TODO: add metrics
 	// TODO: add proper usage (local / k8s examples), etc to the README
-	// TODO: add badges -> snyk vulnearbilities,  drone passing, test coverage, codeclimate style
+	// TODO: add badges -> snyk vulnearbilities
 	// TODO: setup dependency monitoring
 	// https://github.com/dwyl/repo-badges
 }

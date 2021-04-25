@@ -1,0 +1,48 @@
+---
+kind: pipeline
+type: docker
+name: default
+trigger:
+  event:
+    exclude:
+    - pull_request
+
+steps:
+    # TODO: lint check
+      # TODO: actaully implement lint command
+    # TODO: test
+
+- name: container-backend
+  image: allgreed/nix:2.3.6
+  commands:
+  - echo -n "preview$DRONE_COMMIT_SHA" > .tags
+  - nix-shell --quiet --run 'make container'
+  - mv $(readlink -f result) docker-image.tar.gz # need to persist the image between stages and Drone only mounts CWD, so symlinks would fail
+
+- name: push-preview-container-image
+  image: allgreed/drone-load-and-store
+  settings:
+    archive: docker-image.tar.gz
+    repo: allgreed/digitalocean-token-scoper
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  #when:
+    #branch:
+    #- master
+
+    # TODO: functional test  
+      # without docker
+      # one requests fails, one passes
+      # only on master and master prs
+      # remove the docker upload step
+
+    # TODO: if version not already uploaded - release new versioned image
+      # else: fail
+      # only on master
+
+#- name: init
+  #image: allgreed/nix:2.3.6
+  #commands:
+  #- echo -n "preview$DRONE_COMMIT_SHA" > .tags
