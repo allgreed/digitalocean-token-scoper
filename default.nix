@@ -10,7 +10,7 @@ let
 in
 with pkgs; rec {
   pname = "digitalocean-token-scoper";
-  version = "0.2.0";
+  version = "0.3.0";
   executable = buildGoModule rec {
     inherit pname;
     inherit version;

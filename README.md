@@ -42,7 +42,7 @@ make help
 ### Adding new rules
 - in `./rules_test.go` append your test cases to `rulestest` (at the end)
 - in `./rules.go`, add and fill: 
-```
+```go
 type X struct{ // rule parameters }
 
 func (rule X) can_i(ar AuthorizationRequest) bool {

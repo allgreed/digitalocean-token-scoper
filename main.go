@@ -169,10 +169,7 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: finish the CI
-
-	// TODO: write the LB rule
-	// TODO: 0.3.0
+	// TODO: finish the CI -> to release 0.3.0
 
 	// TODO: speed up nix CI
 	// TODO: figure out how to sensibly configure permissions without hardcoding them
