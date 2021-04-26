@@ -22,7 +22,7 @@ run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
 
 build: setup ## create artifact
-	nix-build -A executable.binary
+	nix-build
 
 lint: setup ## run static analysis
 	gofmt $(LINTFLAGS) -w $(SOURCES)

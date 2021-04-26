@@ -11,12 +11,12 @@ in
 with pkgs; rec {
   pname = "digitalocean-token-scoper";
   version = "0.3.0";
-  executable = buildGoModule rec {
+  app = buildGoModule rec {
     inherit pname;
     inherit version;
 
     # TODO: fix leakage to ~/go
-
+    # TODO: fix not having this stuff avaible in dev-shell
     buildInputs = [
       git
       gnumake
@@ -47,11 +47,11 @@ with pkgs; rec {
 
     created = "now";
 
-    contents = [ executable.binary cacert ];
+    contents = [ app cacert ];
 
     config = {
       Cmd = [
-        "${executable.binary}/bin/${pname}"
+        "${app}/bin/${pname}"
       ];
 
       ExposedPorts = {
