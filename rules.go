@@ -48,17 +48,17 @@ func (rule AllowSingleDomainAllRecordsAllActions) is_applicable(ar Authorization
 	}
 }
 
-type AllowLoadBalancersForwardingRule struct{ lb_id string }
+type AllowSingleLoadBalancerAllForwardingRulesAllActions struct{ load_balancer_id string }
 
-func (_ AllowLoadBalancersForwardingRule) can_i(_ AuthorizationRequest) bool {
+func (_ AllowSingleLoadBalancerAllForwardingRulesAllActions) can_i(_ AuthorizationRequest) bool {
 	return true
 }
-func (rule AllowLoadBalancersForwardingRule) is_applicable(ar AuthorizationRequest) bool {
-	rgx := regexp.MustCompile(`^\/v2\/load_balancers\/([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})\/forwarding_rule$`)
+func (rule AllowSingleLoadBalancerAllForwardingRulesAllActions) is_applicable(ar AuthorizationRequest) bool {
+	rgx := regexp.MustCompile(`^\/v2\/load_balancers\/([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})\/forwarding_rule\/?$`)
 	rs := rgx.FindStringSubmatch(ar.path)
 
 	if len(rs) == 2 {
-		return rs[1] == rule.lb_id
+		return rs[1] == rule.load_balancer_id
 	} else {
 		return false
 	}

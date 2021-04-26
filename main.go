@@ -24,7 +24,7 @@ var (
 	token_to_user       = make(map[string]string)
 	user_to_permissions = map[string][]PermissionRule{
 		"allgreed": {AllowSingleDomainAllRecordsAllActions{domain: "olgierd.space"}},
-		"dawid":    {AllowSingleDomainAllRecordsAllActions{domain: "tygrys.me"}, AllowLoadBalancersForwardingRule{lb_id: "9e626efb-af53-42a0-9a8c-319b102ac33c"}},
+		"dawid":    {AllowSingleDomainAllRecordsAllActions{domain: "tygrys.me"}, AllowSingleLoadBalancerAllForwardingRulesAllActions{load_balancer_id: "9e626efb-af53-42a0-9a8c-319b102ac33c"}},
 	}
 )
 
