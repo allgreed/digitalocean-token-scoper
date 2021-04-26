@@ -31,7 +31,7 @@ lint-check: setup ## run static analysis - for CI
 	test -z "$$(gofmt $(LINTFLAGS) -l .)"
 
 test: setup ## run all tests
-	go test
+	go test -mod=readonly
 
 test-watch: setup ## run tests in watch mode
 	ls $(SOURCES) $(TESTS) | entr -c make test
