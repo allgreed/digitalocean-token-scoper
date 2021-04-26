@@ -79,14 +79,18 @@ secrets/users/dawid/secret:
 
 # Helpers
 # ###############
-.PHONY: container-full
+.PHONY: container-full prepare-release-image-tag
 
 container-full: setup container ## create and load the image to the local repository
 	docker load < result
 
+ACQUIRE_VERSION_FORM_DEFAULT_NIX := grep 'version =' default.nix | cut -d' ' -f 5 | tr -d '\"\;'
+
 check-version-uploaded:
-	# TODO: get actual version
-	curl --silent -f -lSL https://index.docker.io/v1/repositories/$(DOCKER_PROJECT)/tags/$$(echo 0.1.0) > /dev/null
+	curl --silent -f -lSL https://index.docker.io/v1/repositories/$(DOCKER_PROJECT)/tags/$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX)) > /dev/null && false || true
+
+prepare-release-image-tag:
+	$(ACQUIRE_VERSION_FORM_DEFAULT_NIX) > .tags
 
 # Utilities
 # ###############

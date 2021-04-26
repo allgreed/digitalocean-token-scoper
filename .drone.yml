@@ -10,93 +10,27 @@ services:
 - name: companion
   image: ealen/echo-server:0.5.0
 steps:
-# TODO: see Makefile
-# TODO: if version not already uploaded - release new versioned image
-  # else: fail
-  # only on master
-
-- name: cache-nix
+- name: is_version_needs_bumping
   image: allgreed/nix:2.3.10
-  pull: always
   commands:
-  - nix-shell --quiet --run ':'
-  - rm -rf ./nix
-  - mv /nix ./nix
+  - nix-shell --quiet --run 'make check-version-uploaded'
+  when:
+    branch:
+    - master
 
 - name: lint
   image: allgreed/nix:2.3.10
   commands:
-  - rm -rf /nix
-  - mv ./nix /nix 
   - nix-shell --quiet --run 'make lint-check'
-  - rm -rf ./nix
-  - mv /nix ./nix
 
 - name: container
   image: allgreed/nix:2.3.10
   commands:
-  - rm -rf /nix
-  - mv ./nix /nix 
   - echo -n "preview-$DRONE_COMMIT_SHA" > .tags
   - nix-shell --quiet --run 'make container'
   - mv $(readlink -f result) docker-image.tar.gz # need to persist the image between stages and Drone only mounts CWD, so symlinks would fail
-  - rm -rf ./nix
-  - mv /nix ./nix
 
-- name: push-container-image
-  image: allgreed/drone-load-and-store
-  settings:
-    archive: docker-image.tar.gz
-    repo: allgreed/digitalocean-token-scoper
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-
-- name: preapre-functional-env
-  image: allgreed/nix:2.3.10
-  commands:
-  - rm -rf /nix
-  - mv ./nix /nix 
-  - nix-shell --quiet --run 'make secrets'
-  - rm -rf ./nix
-  - mv /nix ./nix
-
-  # TODO: fix!
-- name: run app
-  image: allgreed/digitalocean-token-scoper:preview-${DRONE_COMMIT_SHA}
-  environment:
-    APP_LOG_LEVEL: "debug"
-    APP_LOG_FORMAT: "text"
-    APP_PORT: "8080"
-    APP_TARGET_URL: "http://companion"
-    APP_USERTOKEN__allgreed: "./secrets/users/allgreed/secret"
-    APP_USERTOKEN__dawid: "./secrets/users/dawid/secret"
-    APP_TOKEN_PATH: "./secrets/token/secret"
-  detach: true
-
-- name: functional tests
-  image: allgreed/nix:2.3.10
-  commands:
-  - rm -rf /nix
-  - mv ./nix /nix 
-  - nix-shell --quiet --run 'make interact'
-  - rm -rf ./nix
-  - mv /nix ./nix
-  # TODO: add assertions and a real test script
-    # one requests fails, one passes
-    # only on master and master prs
-
-#- name: release-container
-  #image: allgreed/nix:2.3.10
-  #commands:
-    ## TODO: build proper release array
-  #- echo -n "preview$DRONE_COMMIT_SHA" > .tags
-  #when:
-    #branch:
-    #- master
-
-#- name: push-release-container-image
+#- name: push-container-image
   #image: allgreed/drone-load-and-store
   #settings:
     #archive: docker-image.tar.gz
@@ -105,7 +39,51 @@ steps:
       #from_secret: docker_username
     #password:
       #from_secret: docker_password
-  #when:
-    #branch:
-    #- master
-# TODO: bump patch version and release
+
+#- name: preapre-functional-env
+  #image: allgreed/nix:2.3.10
+  #commands:
+  #- nix-shell --quiet --run 'make secrets'
+
+  ## TODO: fix!
+#- name: run app
+  #image: allgreed/digitalocean-token-scoper:preview-${DRONE_COMMIT_SHA}
+  #environment:
+    #APP_LOG_LEVEL: "debug"
+    #APP_LOG_FORMAT: "text"
+    #APP_PORT: "8080"
+    #APP_TARGET_URL: "http://companion"
+    #APP_USERTOKEN__allgreed: "./secrets/users/allgreed/secret"
+    #APP_USERTOKEN__dawid: "./secrets/users/dawid/secret"
+    #APP_TOKEN_PATH: "./secrets/token/secret"
+  #detach: true
+
+#- name: functional tests
+  #image: allgreed/nix:2.3.10
+  #commands:
+  #- nix-shell --quiet --run 'make interact'
+  ## TODO: add assertions and a real test script
+    ## one requests fails, one passes
+    ## only on master and master prs
+
+- name: prepare-container-release
+  image: allgreed/nix:2.3.10
+  commands:
+  - nix-shell --quiet --run 'make prepare-release-image-tag'
+  when:
+    branch:
+    - master
+
+  # TODO: add auto_tag
+- name: push-release-container-image
+  image: allgreed/drone-load-and-store
+  settings:
+    archive: docker-image.tar.gz
+    repo: allgreed/digitalocean-token-scoper
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  when:
+    branch:
+    - master

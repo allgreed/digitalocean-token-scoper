@@ -169,10 +169,10 @@ func main() {
 
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: finish the CI -> to release 0.3.0
-
 	// TODO: speed up nix CI
+	// TODO: fix functional tests
 	// TODO: figure out how to sensibly configure permissions without hardcoding them
+	// TODO: release 0.4.0
 
 	// TODO: cover minor todos - `make todo`
 	// TODO: ask for a 3rd party security audit
