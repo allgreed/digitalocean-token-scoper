@@ -21,11 +21,8 @@ var (
 	target_url          *url.URL
 	do_token            string
 	port                string
-	token_to_user       = make(map[string]string)
-	user_to_permissions = map[string][]PermissionRule{
-		"allgreed": {AllowSingleDomainAllRecordsAllActions{domain: "olgierd.space"}},
-		"dawid":    {AllowSingleDomainAllRecordsAllActions{domain: "tygrys.me"}, AllowSingleLoadBalancerAllForwardingRulesAllActions{load_balancer_id: "9e626efb-af53-42a0-9a8c-319b102ac33c"}},
-	}
+	token_to_user       map[string]string
+	user_to_permissions map[string][]PermissionRule
 )
 
 func handleFunc(w http.ResponseWriter, r *http.Request) {
@@ -167,14 +164,16 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
+	log.WithFields(log.Fields{
+		"port": port,
+	}).Info("Starting!")
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: speed up nix CI
-	// TODO: fix functional tests
-	// TODO: figure out how to sensibly configure permissions without hardcoding them
-	// TODO: release 0.4.0
+    // TODO: migrate k8s usage
+    // TODO: fill Docker and k8s examples
 
 	// TODO: cover minor todos - `make todo`
+    // TODO: remove beta disclaimer
 	// TODO: ask for a 3rd party security audit
 	// TODO: release 1.0.0
 

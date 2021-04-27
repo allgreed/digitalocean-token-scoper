@@ -7,17 +7,32 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
 
 ## Usage
-It's heavily alpha right now - it's running in production, but ~may~ will require editing source code for setting permissions
+- It's beta right now - I'm running it in production, but the code is a bit crappy. YMMV
+- It's an HTTP proxy, just run it (either as binary or container) and send DigitalOcean requests to it 
+- Usernames are fairly arbitrary, however I'm assuming alphanumeric ASCII and that tokens should not contain significant whitespace at the begining or end.
 
-Usernames are fairly arbitrary, however for the development purpose I'm assuming alphanumeric ASCII and that tokens don't contain significant whitespace.
+### Example: Docker
+TODO
 
-For now go for [dev](#dev)
+### Example: k8s
+TODO
+
+### Example: Terraform
+```
+provider digitalocean {
+  token     = "your do-token-scoper goes here"
+  api_endpoint = "http://wherever-it's-running:port"
+}
+```
 
 ### Permission model
 - rules are applied sequentially in order
 - if a rule applies then it's the authority on weather grant or deny access
 - by default DenyAll is appended at the end of the rule chain
 
+### Permission format
+
+See `./example.yaml`
 
 ## Dev
 

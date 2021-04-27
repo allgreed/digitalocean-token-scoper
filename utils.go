@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+    "fmt"
 )
 
 type OutputSplitter struct{}
@@ -53,10 +54,10 @@ func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
 	return AuthorizationRequest{path: u.Path, method: m}, nil
 }
 
-func read_tokenfile(p string) string {
+func read_file(p string) string {
 	_content, err := ioutil.ReadFile(p)
 	if err != nil {
-		log.Fatalf("Something went wrong when reading secret from %s, err: %s", p, err)
+		log.Fatalf("Something went wrong when reading file from %s, err: %s", p, err)
 	}
 
 	return strings.TrimSpace(string(_content))
@@ -67,4 +68,32 @@ func (splitter *OutputSplitter) Write(p []byte) (n int, err error) {
 		return os.Stderr.Write(p)
 	}
 	return os.Stdout.Write(p)
+}
+
+func get_param(r Rule, p string) string {
+    _p := r.Parameters
+    parameters := make(map[string]string)
+
+    if _p == nil {
+        log.Fatalf("Parameters required, but missing; in rule %s", r.Kind)
+    }
+
+    __p, ok := _p.(map[interface{}]interface{})
+    if !ok {
+        log.Fatalf("Parameters should be a map, but they're not; in rule %s", r.Kind)
+    }
+
+    for key, value := range __p {
+        strKey := fmt.Sprintf("%v", key)
+        strValue := fmt.Sprintf("%v", value)
+
+        parameters[strKey] = strValue
+    }
+
+    result, found := parameters[p];
+    if !found {
+        log.Fatalf("Parameter %q required, but not found in rule %q", p, r.Kind)
+    }
+
+    return result
 }

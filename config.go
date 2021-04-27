@@ -4,7 +4,21 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/url"
+
+    "gopkg.in/yaml.v2"
 )
+
+type ConfigPayload struct {
+    Permissions []BoundRule `yaml:"permissions"`
+}
+type BoundRule struct {
+    User string `yaml:"user"`
+    Rules []Rule `yaml:"rules"`
+}
+type Rule struct {
+    Kind string `yaml:"rule"`
+    Parameters interface{} `yaml:"parameters"`
+}
 
 func configure() {
 	initialize_logging() // this has to be first to ensure log consistency
@@ -19,16 +33,25 @@ func configure() {
 	}
 	target_url = _tu // golang what are u doin' golang stahp!
 
-	do_token = read_tokenfile(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token/secret"))
+	do_token = read_file(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token/secret"))
+
+    _user_to_permissions := read_file(acquire_env_or_default("APP_PERMISSIONS_PATH", "/config/permissions"))
+    var __user_to_permissions ConfigPayload
+    err = yaml.Unmarshal([]byte(_user_to_permissions), &__user_to_permissions)
+    if err != nil {
+        log.Fatalf("something wrong with parsing permission yaml: %v", err)
+    }
+    user_to_permissions = parse_config(__user_to_permissions)
 
 	users := []string{}
 	for k := range user_to_permissions {
 		users = append(users, k)
 	}
+	token_to_user = make(map[string]string)
 	for _, u := range users {
 		env_for_user := fmt.Sprintf("APP_USERTOKEN__%s", u)
 		default_path := fmt.Sprintf("/secrets/users/%s/secret", u)
-		token := read_tokenfile(acquire_env_or_default(env_for_user, default_path))
+		token := read_file(acquire_env_or_default(env_for_user, default_path))
 		token_to_user[token] = u
 	}
 }
@@ -61,4 +84,25 @@ func initialize_logging() {
 	log.SetLevel(log_level)
 
 	log.SetOutput(&OutputSplitter{})
+}
+
+func parse_config(c ConfigPayload) map[string][]PermissionRule {
+    result := make(map[string][]PermissionRule)
+    for _, bound_rules := range c.Permissions {
+        u := bound_rules.User
+        rules := []PermissionRule{}
+        for _, rule := range bound_rules.Rules {
+            r, err := parse_rule(rule)
+            if err != nil {
+                log.Fatalf("Something went wrong when parsing rule, err: %s", err)
+            }
+            rules = append(rules, r)
+        }
+        result[u] = rules
+    }
+
+	log.WithFields(log.Fields{
+		"permissions": fmt.Sprintf("%+v", result),
+	}).Info("Permissions sucesfully parsed")
+    return result
 }

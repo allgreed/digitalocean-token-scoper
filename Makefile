@@ -16,7 +16,7 @@ LINTFLAGS := -e -s
 
 run: secrets setup ## run the app
 	# TODO: ensure that env is running?
-	APP_LOG_LEVEL=debug APP_LOG_FORMAT=text APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__allgreed=./secrets/users/allgreed/secret APP_TOKEN_PATH=./secrets/token/secret APP_USERTOKEN__dawid=./secrets/users/dawid/secret go run -mod=readonly $(SOURCES)
+	APP_PERMISSIONS_PATH=./example.yaml APP_LOG_LEVEL=debug APP_LOG_FORMAT=text APP_PORT=$(PORT) APP_TARGET_URL=http://localhost:$(CONTAINER_PORT) APP_USERTOKEN__joe=./secrets/users/joe/secret APP_TOKEN_PATH=./secrets/token/secret APP_USERTOKEN__jane=./secrets/users/jane/secret go run -mod=readonly $(SOURCES)
 
 run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
@@ -48,13 +48,13 @@ container: setup ## create container
 
 interact: ## helper process to run predefined inputs
 	# TODO: simple command runner with a few options that can be chosen at a keypress
-	curl http://localhost:$(PORT)/v2/domains/olgierd.space/records --silent -H "Authorization: Bearer $(CLIENT_SECRET)" | jq
+	curl http://localhost:$(PORT)/v2/domains/example.com/records --silent -H "Authorization: Bearer $(CLIENT_SECRET)" | jq
 
 # Plumbing
 # ###############
 .PHONY: setup gitclean gitclean-with-libs secrets
 
-secrets: secrets/token/secret secrets/users/allgreed/secret secrets/users/dawid/secret
+secrets: secrets/token/secret secrets/users/joe/secret secrets/users/jane/secret
 
 main.out: $(SOURCES)
 	go build -o $< $@
@@ -69,12 +69,12 @@ secrets/token/secret:
 	mkdir -p secrets/token
 	echo "verymuchanexampletoken" > $@
 
-secrets/users/allgreed/secret:
-	mkdir -p secrets/users/allgreed
+secrets/users/joe/secret:
+	mkdir -p secrets/users/joe
 	echo "$(CLIENT_SECRET)" > $@
 
-secrets/users/dawid/secret:
-	mkdir -p secrets/users/dawid
+secrets/users/jane/secret:
+	mkdir -p secrets/users/jane
 	echo "very much whatever" > $@
 
 # Helpers

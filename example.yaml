@@ -1,0 +1,14 @@
+permissions:
+  - user: joe
+    rules:
+      - rule: AllowSingleDomainAllRecordsAllActions
+        parameters:
+          domain: example.com
+  - user: jane
+    rules:
+      - rule: AllowSingleDomainAllRecordsAllActions
+        parameters:
+          domain: ble.example.com
+      - rule: AllowSingleLoadBalancerAllForwardingRulesAllActions
+        parameters:
+          load_balancer_id: 7649a489-e545-4acf-a84e-bce8c53ac876

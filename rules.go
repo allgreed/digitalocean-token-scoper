@@ -2,6 +2,7 @@ package main
 
 import (
 	"regexp"
+    "errors"
 )
 
 type AuthorizationRequest struct {
@@ -12,6 +13,26 @@ type AuthorizationRequest struct {
 type PermissionRule interface {
 	can_i(AuthorizationRequest) bool
 	is_applicable(AuthorizationRequest) bool
+}
+
+
+//TODO: test for exhaustivness
+//https://www.reddit.com/r/golang/comments/8nz2mc/finding_all_types_which_implement_an_interface_at/
+func parse_rule(r Rule) (PermissionRule, error) {
+    var result PermissionRule
+    var err error = nil
+	switch kind := r.Kind; kind {
+	case "AllowSingleDomainAllRecordsAllActions":
+        domain := get_param(r, "domain")
+        result = AllowSingleDomainAllRecordsAllActions{domain}
+    case "AllowSingleLoadBalancerAllForwardingRulesAllActions":
+        load_balancer_id := get_param(r, "load_balancer_id")
+        result = AllowSingleLoadBalancerAllForwardingRulesAllActions{load_balancer_id}
+	default:
+        err = errors.New("Unkown rule, aborting!")
+	}
+
+    return result, err
 }
 
 type AllowAll struct{}
