@@ -1,8 +1,9 @@
 # digitalocean-token-scoper
 A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token scoping](https://ideas.digitalocean.com/ideas/DO-I-966)*
 <!--*-->
-[![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
+[![built with nix](https://img.shields.io/badge/-%20nix-%235277E3?logo=NixOs&label=built%20with)](https://builtwithnix.org)
 [![Build Status](https://cloud.drone.io/api/badges/allgreed/digitalocean-token-scoper/status.svg)](https://cloud.drone.io/allgreed/digitalocean-token-scoper)
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/allgreed/digitalocean-token-scoper?sort=semver)
 
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
 

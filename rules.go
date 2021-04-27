@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"regexp"
+    "fmt"
 )
 
 type AuthorizationRequest struct {
@@ -28,7 +29,7 @@ func parse_rule(r Rule) (PermissionRule, error) {
 		load_balancer_id := get_param(r, "load_balancer_id")
 		result = AllowSingleLoadBalancerAllForwardingRulesAllActions{load_balancer_id}
 	default:
-		err = errors.New("Unkown rule, aborting!")
+		err = errors.New(fmt.Sprintf("Unkown rule *%s*, aborting!", kind))
 	}
 
 	return result, err

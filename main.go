@@ -169,11 +169,14 @@ func main() {
 	}).Info("Starting!")
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: migrate k8s usage
 	// TODO: fill Docker and k8s examples
+    // TODO: - do-token-scoper => errs as fields when logging
+    // TODO: - when "kind" instead of "rule" => make the error more visible
+    // TODO: release 0.4.2
 
 	// TODO: cover minor todos - `make todo`
 	// TODO: remove beta disclaimer
+
 	// TODO: ask for a 3rd party security audit
 	// TODO: release 1.0.0
 

@@ -87,11 +87,18 @@ func initialize_logging() {
 }
 
 func parse_config(c ConfigPayload) map[string][]PermissionRule {
+    log.WithFields(log.Fields{
+        "payload": c,
+    }).Debug("Begin processing")
 	result := make(map[string][]PermissionRule)
 	for _, bound_rules := range c.Permissions {
 		u := bound_rules.User
 		rules := []PermissionRule{}
 		for _, rule := range bound_rules.Rules {
+            log.WithFields(log.Fields{
+                "rule": rule,
+                "user": u,
+            }).Debug("Processing rule")
 			r, err := parse_rule(rule)
 			if err != nil {
 				log.Fatalf("Something went wrong when parsing rule, err: %s", err)
