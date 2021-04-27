@@ -5,19 +5,19 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/url"
 
-    "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type ConfigPayload struct {
-    Permissions []BoundRule `yaml:"permissions"`
+	Permissions []BoundRule `yaml:"permissions"`
 }
 type BoundRule struct {
-    User string `yaml:"user"`
-    Rules []Rule `yaml:"rules"`
+	User  string `yaml:"user"`
+	Rules []Rule `yaml:"rules"`
 }
 type Rule struct {
-    Kind string `yaml:"rule"`
-    Parameters interface{} `yaml:"parameters"`
+	Kind       string      `yaml:"rule"`
+	Parameters interface{} `yaml:"parameters"`
 }
 
 func configure() {
@@ -35,13 +35,13 @@ func configure() {
 
 	do_token = read_file(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token/secret"))
 
-    _user_to_permissions := read_file(acquire_env_or_default("APP_PERMISSIONS_PATH", "/config/permissions"))
-    var __user_to_permissions ConfigPayload
-    err = yaml.Unmarshal([]byte(_user_to_permissions), &__user_to_permissions)
-    if err != nil {
-        log.Fatalf("something wrong with parsing permission yaml: %v", err)
-    }
-    user_to_permissions = parse_config(__user_to_permissions)
+	_user_to_permissions := read_file(acquire_env_or_default("APP_PERMISSIONS_PATH", "/config/permissions"))
+	var __user_to_permissions ConfigPayload
+	err = yaml.Unmarshal([]byte(_user_to_permissions), &__user_to_permissions)
+	if err != nil {
+		log.Fatalf("something wrong with parsing permission yaml: %v", err)
+	}
+	user_to_permissions = parse_config(__user_to_permissions)
 
 	users := []string{}
 	for k := range user_to_permissions {
@@ -87,22 +87,22 @@ func initialize_logging() {
 }
 
 func parse_config(c ConfigPayload) map[string][]PermissionRule {
-    result := make(map[string][]PermissionRule)
-    for _, bound_rules := range c.Permissions {
-        u := bound_rules.User
-        rules := []PermissionRule{}
-        for _, rule := range bound_rules.Rules {
-            r, err := parse_rule(rule)
-            if err != nil {
-                log.Fatalf("Something went wrong when parsing rule, err: %s", err)
-            }
-            rules = append(rules, r)
-        }
-        result[u] = rules
-    }
+	result := make(map[string][]PermissionRule)
+	for _, bound_rules := range c.Permissions {
+		u := bound_rules.User
+		rules := []PermissionRule{}
+		for _, rule := range bound_rules.Rules {
+			r, err := parse_rule(rule)
+			if err != nil {
+				log.Fatalf("Something went wrong when parsing rule, err: %s", err)
+			}
+			rules = append(rules, r)
+		}
+		result[u] = rules
+	}
 
 	log.WithFields(log.Fields{
 		"permissions": fmt.Sprintf("%+v", result),
 	}).Info("Permissions sucesfully parsed")
-    return result
+	return result
 }

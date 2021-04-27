@@ -3,13 +3,13 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
-    "fmt"
 )
 
 type OutputSplitter struct{}
@@ -71,29 +71,29 @@ func (splitter *OutputSplitter) Write(p []byte) (n int, err error) {
 }
 
 func get_param(r Rule, p string) string {
-    _p := r.Parameters
-    parameters := make(map[string]string)
+	_p := r.Parameters
+	parameters := make(map[string]string)
 
-    if _p == nil {
-        log.Fatalf("Parameters required, but missing; in rule %s", r.Kind)
-    }
+	if _p == nil {
+		log.Fatalf("Parameters required, but missing; in rule %s", r.Kind)
+	}
 
-    __p, ok := _p.(map[interface{}]interface{})
-    if !ok {
-        log.Fatalf("Parameters should be a map, but they're not; in rule %s", r.Kind)
-    }
+	__p, ok := _p.(map[interface{}]interface{})
+	if !ok {
+		log.Fatalf("Parameters should be a map, but they're not; in rule %s", r.Kind)
+	}
 
-    for key, value := range __p {
-        strKey := fmt.Sprintf("%v", key)
-        strValue := fmt.Sprintf("%v", value)
+	for key, value := range __p {
+		strKey := fmt.Sprintf("%v", key)
+		strValue := fmt.Sprintf("%v", value)
 
-        parameters[strKey] = strValue
-    }
+		parameters[strKey] = strValue
+	}
 
-    result, found := parameters[p];
-    if !found {
-        log.Fatalf("Parameter %q required, but not found in rule %q", p, r.Kind)
-    }
+	result, found := parameters[p]
+	if !found {
+		log.Fatalf("Parameter %q required, but not found in rule %q", p, r.Kind)
+	}
 
-    return result
+	return result
 }

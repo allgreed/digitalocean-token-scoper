@@ -12,13 +12,17 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 - Usernames are fairly arbitrary, however I'm assuming alphanumeric ASCII and that tokens should not contain significant whitespace at the begining or end.
 
 ### Example: Docker
+```bash
 TODO
+```
 
 ### Example: k8s
+```yaml
 TODO
+```
 
 ### Example: Terraform
-```
+```terraform
 provider digitalocean {
   token     = "your do-token-scoper goes here"
   api_endpoint = "http://wherever-it's-running:port"
