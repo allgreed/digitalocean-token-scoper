@@ -35,7 +35,7 @@ func configure() {
 
 	do_token = read_file(acquire_env_or_default("APP_TOKEN_PATH", "/secrets/token/secret"))
 
-	_user_to_permissions := read_file(acquire_env_or_default("APP_PERMISSIONS_PATH", "/config/permissions"))
+	_user_to_permissions := read_file(acquire_env_or_default("APP_PERMISSIONS_PATH", "/config/permissions/config"))
 	var __user_to_permissions ConfigPayload
 	err = yaml.Unmarshal([]byte(_user_to_permissions), &__user_to_permissions)
 	if err != nil {
