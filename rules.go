@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
-    "fmt"
 )
 
 type AuthorizationRequest struct {

@@ -11,15 +11,111 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 - It's beta right now - I'm running it in production, but the code is a bit crappy. YMMV
 - It's an HTTP proxy, just run it (either as binary or container) and send DigitalOcean requests to it 
 - Usernames are fairly arbitrary, however I'm assuming alphanumeric ASCII and that tokens should not contain significant whitespace at the begining or end.
+- See examples
 
 ### Example: Docker
 ```bash
-TODO
+mkdir /tmp/do-ts-example
+cat << EOF > /tmp/do-ts-example/config
+permissions:
+  - user: joe
+    rules:
+      - rule: AllowSingleDomainAllRecordsAllActions
+        parameters:
+          domain: example.com
+EOF
+cat << EOF > /tmp/do-ts-example/joe-secret
+aaaa
+EOF
+cat << EOF > /tmp/do-ts-example/do-token
+# insert you Digitalocean token here
+EOF
+docker run --rm -v /tmp/do-ts-example:/data \
+    -e APP_PERMISSIONS_PATH=/data/config \
+    -e APP_USERTOKEN__joe=/data/joe-secret \
+    -e APP_TOKEN_PATH=/data/do-token \
+    -p 7777:80 \
+    allgreed/digitalocean-token-scoper:0.4.1
+
+# in a new shell
+# next one will pass
+curl http://localhost:7777/v2/domains/example.com/records --silent -H "Authorization: Bearer aaaa" | jq
+
+# those 3 will not (2 x unathorized, 1 x unathenticated)
+curl http://localhost:7777/v2/domains/example.org/records --silent -H "Authorization: Bearer aaaa" | jq
+curl http://localhost:7777/v2/droplets --silent -H "Authorization: aaaa" | jq
+# yeah, the "Bearer" part is optional
+curl http://localhost:7777/v2/droplets --silent -H "Authorization: Bearer bbbb" | jq
 ```
 
 ### Example: k8s
 ```yaml
-TODO
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digitalocean-token-scoper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: digitalocean-token-scoper
+  template:
+    spec:
+      containers:
+      - name: main
+        image: docker.io/allgreed/digitalocean-token-scoper:0.4.1
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: joe-token
+          mountPath: "/secrets/users/joe"
+          readOnly: true
+        - name: do-api-token
+          mountPath: "/secrets/token"
+          readOnly: true
+        - name: permissions
+          mountPath: "/config/permissions"
+          readOnly: true
+      volumes:
+      - name: permissions
+        configMap:
+          name: digitalocean-token-scoper
+      - name: joe-token
+        secret:
+          secretName: ...
+      - name: do-api-token
+        secret:
+          secretName: ...
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: digitalocean-token-scoper
+data:
+  config: |
+    permissions:
+      - user: joe
+        rules:
+          - rule: AllowSingleDomainAllRecordsAllActions
+            parameters:
+              domain: example.com
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: joe-token
+type: Opaque
+data:
+  secret: aaaa # <- please don't use this in production
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: do-api-token
+type: Opaque
+data:
+  secret: ... # your Digitalocean API token goes here
 ```
 
 ### Example: Terraform

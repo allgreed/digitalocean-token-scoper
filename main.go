@@ -82,6 +82,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 			if !rule.can_i(ar) {
 				JSONError(w, "You don't have access to that resource with that method", 403)
+                // TODO: AR isn't displayed correctly
 				logger.WithFields(log.Fields{
 					"ar": ar,
 				}).Warn("Unauthorized action attempt")
@@ -169,10 +170,9 @@ func main() {
 	}).Info("Starting!")
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: fill Docker and k8s examples
-    // TODO: - do-token-scoper => errs as fields when logging
-    // TODO: - when "kind" instead of "rule" => make the error more visible
-    // TODO: release 0.4.2
+	// TODO: - do-token-scoper => errs as fields when logging
+	// TODO: - when "kind" instead of "rule" => make the error more visible
+	// TODO: release 0.4.3
 
 	// TODO: cover minor todos - `make todo`
 	// TODO: remove beta disclaimer
