@@ -48,9 +48,6 @@ func JSONError(w http.ResponseWriter, err interface{}, code int) {
 }
 
 func url_to_auth_request(u *url.URL, m string) (AuthorizationRequest, error) {
-	// TODO: do some serializaion to make sure we're on the same page
-	// TODO: rewrite tests to use new values?
-	// TODO: is this actuall needed?
 	return AuthorizationRequest{path: u.Path, method: m}, nil
 }
 

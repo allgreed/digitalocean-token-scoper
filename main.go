@@ -1,6 +1,6 @@
 package main
 
-// heavily based on https://github.com/davidfstr/nanoproxy
+// inspired by https://github.com/davidfstr/nanoproxy
 
 import (
 	"fmt"
@@ -8,8 +8,7 @@ import (
 	uuid "github.com/pborman/uuid"
 	log "github.com/sirupsen/logrus"
 
-	//"io"
-	"io/ioutil"
+    "io"
 	"net/http"
 	"net/url"
 	"path"
@@ -60,19 +59,17 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	ar, err := url_to_auth_request(r.URL, r.Method)
 	if err != nil {
-		// TODO: fix this up
-		//JSONError(w, "You don't have access to that resource with that method", 403)
-		//logger.WithFields(log.Fields{
-		//"ar": ar,
-		//}).Warn("Unauthorized action attempt")
-		return
+        JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 500)
+		logger.WithFields(log.Fields{
+			"err": err,
+		}).Warn("Transalting request to interanl representation")
 	}
 	effectivePermissionRules := append(permissions, DenyAll{})
 
 	logger.WithFields(log.Fields{
 		"authorization_request": fmt.Sprintf("%+v", ar),
 		"effective_permissions": strings.Replace(fmt.Sprintf("%#v", effectivePermissionRules), "[]main.PermissionRule{", "{", 1),
-	}).Debug("Will auth in a tick")
+	}).Debug("")
 
 	for _, rule := range effectivePermissionRules {
 		if rule.is_applicable(ar) {
@@ -82,7 +79,6 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 			if !rule.can_i(ar) {
 				JSONError(w, "You don't have access to that resource with that method", 403)
-				// TODO: AR isn't displayed correctly
 				logger.WithFields(log.Fields{
 					"ar": ar,
 				}).Warn("Unauthorized action attempt")
@@ -116,12 +112,10 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := http.DefaultTransport.RoundTrip(&proxied_request)
 	if err != nil {
-		// TODO: relay more info ?
-		JSONError(w, "Could not reach origin server", 500)
-		// TODO: fix this - what info should be passed? maybe even error!
+        JSONError(w, "Something wrong with upstream", 504)
 		logger.WithFields(log.Fields{
 			"err": err,
-		}).Warn("Wabababababa")
+		}).Warn("Problem reaching target")
 		return
 	}
 	defer resp.Body.Close()
@@ -131,26 +125,14 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		respH[hk] = hv
 	}
 	w.WriteHeader(resp.StatusCode)
-	//if resp.ContentLength > 0 {
-	//// ignore I/O errors, since there's nothing we can do
-	//io.CopyN(w, resp.Body, resp.ContentLength)
-	//} else if resp.Close {
-	//for {
-	//if _, err := io.Copy(w, resp.Body); err != nil {
-	//fmt.Println(err)
-	//break
-	//}
-	//}
-	//}
-	// TODO: stream instead of buffering to memory
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+    _, err = io.Copy(w, resp.Body)
 	if err != nil {
-		// TODO: handle this properly
+        JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 502)
 		logger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Copying response body")
+        return
 	}
-	w.Write(bodyBytes)
 	logger.Info("Success")
 }
 
@@ -172,17 +154,19 @@ func main() {
 	}).Info("Starting!")
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: cover minor todos - `make todo`
-	// TODO: remove beta disclaimer
-
 	// TODO: ask for a 3rd party security audit
-	// TODO: release 1.0.0
 
-	// TODO: automated E2E tests (k8s example) - for manual running?
+    // TODO: all the TODOs from makefiles and default.nix
+	// TODO: automated functional tests
+
 	// TODO: add health and ready url
+    // TODO: update k8s example ?
 	// TODO: add metrics
-	// TODO: add proper usage (local / k8s examples), etc to the README
-	// TODO: add badges -> snyk vulnearbilities
+    // TODO: update k8s example ?
+
 	// TODO: setup dependency monitoring
-	// https://github.com/dwyl/repo-badges
+	// TODO: add badges -> snyk vulnearbilities
+	    // https://github.com/dwyl/repo-badges
+
+	// TODO: release 1.0.0
 }

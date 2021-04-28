@@ -16,8 +16,6 @@ type PermissionRule interface {
 	is_applicable(AuthorizationRequest) bool
 }
 
-//TODO: test for exhaustivness
-//https://www.reddit.com/r/golang/comments/8nz2mc/finding_all_types_which_implement_an_interface_at/
 func parse_rule(r Rule) (PermissionRule, error) {
 	var result PermissionRule
 	var err error = nil
@@ -84,5 +82,3 @@ func (rule AllowSingleLoadBalancerAllForwardingRulesAllActions) is_applicable(ar
 		return false
 	}
 }
-
-// TODO: create an issue about body authentication -> why I don't need it yet and how to do it => also: take into account changing the logging!
