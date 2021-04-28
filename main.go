@@ -172,9 +172,6 @@ func main() {
 	}).Info("Starting!")
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: - when "kind" instead of "rule" => make the error more visible
-	// TODO: release 0.4.3
-
 	// TODO: cover minor todos - `make todo`
 	// TODO: remove beta disclaimer
 

@@ -40,7 +40,7 @@ func configure() {
 
 	_user_to_permissions := read_file(acquire_env_or_default("APP_PERMISSIONS_PATH", "/config/permissions/config"))
 	var __user_to_permissions ConfigPayload
-	err = yaml.Unmarshal([]byte(_user_to_permissions), &__user_to_permissions)
+	err = yaml.UnmarshalStrict([]byte(_user_to_permissions), &__user_to_permissions)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"err": err,
