@@ -8,7 +8,7 @@ import (
 	uuid "github.com/pborman/uuid"
 	log "github.com/sirupsen/logrus"
 
-    "io"
+	"io"
 	"net/http"
 	"net/url"
 	"path"
@@ -59,7 +59,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	ar, err := url_to_auth_request(r.URL, r.Method)
 	if err != nil {
-        JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 500)
+		JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 500)
 		logger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Transalting request to interanl representation")
@@ -112,7 +112,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := http.DefaultTransport.RoundTrip(&proxied_request)
 	if err != nil {
-        JSONError(w, "Something wrong with upstream", 504)
+		JSONError(w, "Something wrong with upstream", 504)
 		logger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Problem reaching target")
@@ -125,13 +125,13 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		respH[hk] = hv
 	}
 	w.WriteHeader(resp.StatusCode)
-    _, err = io.Copy(w, resp.Body)
+	_, err = io.Copy(w, resp.Body)
 	if err != nil {
-        JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 502)
+		JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 502)
 		logger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Copying response body")
-        return
+		return
 	}
 	logger.Info("Success")
 }
@@ -156,17 +156,17 @@ func main() {
 
 	// TODO: ask for a 3rd party security audit
 
-    // TODO: all the TODOs from makefiles and default.nix
+	// TODO: all the TODOs from makefiles and default.nix
 	// TODO: automated functional tests
 
 	// TODO: add health and ready url
-    // TODO: update k8s example ?
+	// TODO: update k8s example ?
 	// TODO: add metrics
-    // TODO: update k8s example ?
+	// TODO: update k8s example ?
 
 	// TODO: setup dependency monitoring
 	// TODO: add badges -> snyk vulnearbilities
-	    // https://github.com/dwyl/repo-badges
+	// https://github.com/dwyl/repo-badges
 
 	// TODO: release 1.0.0
 }
