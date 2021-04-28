@@ -82,7 +82,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 			if !rule.can_i(ar) {
 				JSONError(w, "You don't have access to that resource with that method", 403)
-                // TODO: AR isn't displayed correctly
+				// TODO: AR isn't displayed correctly
 				logger.WithFields(log.Fields{
 					"ar": ar,
 				}).Warn("Unauthorized action attempt")
@@ -146,7 +146,9 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		// TODO: handle this properly
-		log.Fatal(err)
+		logger.WithFields(log.Fields{
+			"err": err,
+		}).Warn("Copying response body")
 	}
 	w.Write(bodyBytes)
 	logger.Info("Success")
@@ -170,7 +172,6 @@ func main() {
 	}).Info("Starting!")
 	log.Fatal(s.ListenAndServe())
 
-	// TODO: - do-token-scoper => errs as fields when logging
 	// TODO: - when "kind" instead of "rule" => make the error more visible
 	// TODO: release 0.4.3
 

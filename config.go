@@ -29,7 +29,10 @@ func configure() {
 	_target_url := acquire_env_or_default("APP_TARGET_URL", "https://api.digitalocean.com/")
 	_tu, err := url.Parse(_target_url)
 	if err != nil {
-		log.Fatalf("Something went wrong when processing APP_TARGET_URL, err: %s", err)
+		log.WithFields(log.Fields{
+			"app_target_url": _target_url,
+			"err":            err,
+		}).Fatal("Processing APP_TARGET_UR")
 	}
 	target_url = _tu // golang what are u doin' golang stahp!
 
@@ -39,7 +42,9 @@ func configure() {
 	var __user_to_permissions ConfigPayload
 	err = yaml.Unmarshal([]byte(_user_to_permissions), &__user_to_permissions)
 	if err != nil {
-		log.Fatalf("something wrong with parsing permission yaml: %v", err)
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Fatal("Parsing permission yaml")
 	}
 	user_to_permissions = parse_config(__user_to_permissions)
 
@@ -61,8 +66,8 @@ func initialize_logging() {
 
 	if log_format == "text" {
 		log.SetFormatter(&log.TextFormatter{
-			DisableColors: true,
-			FullTimestamp: true,
+			DisableColors:    true,
+			DisableTimestamp: true,
 		})
 	} else {
 		log.SetFormatter(&log.JSONFormatter{})
@@ -101,7 +106,9 @@ func parse_config(c ConfigPayload) map[string][]PermissionRule {
 			}).Debug("Processing rule")
 			r, err := parse_rule(rule)
 			if err != nil {
-				log.Fatalf("Something went wrong when parsing rule, err: %s", err)
+				log.WithFields(log.Fields{
+					"err": err,
+				}).Fatal("Parsing rule")
 			}
 			rules = append(rules, r)
 		}
