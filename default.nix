@@ -10,7 +10,7 @@ let
 in
 with pkgs; rec {
   pname = "digitalocean-token-scoper";
-  version = "0.4.5";
+  version = "0.5.0";
   app = buildGoModule rec {
     inherit pname;
     inherit version;
@@ -26,7 +26,7 @@ with pkgs; rec {
       jq
     ];
     src = builtins.filterSource (path: type:  baseNameOf path != ".git") ./.;
-    vendorSha256 = "1gwpqffhf7cgp93jqzfmn08gxynbl5gy8xlahd84z8rlwvzg3a0g"; 
+    vendorSha256 = "02wdj7ijffzlslnfpwildvigwdgngz1599x9fmag2s81rfyv24k5"; 
 
     subPackages = [ "." ]; 
 

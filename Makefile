@@ -3,7 +3,7 @@ CLIENT_SECRET=aaaa
 CONTAINER_NAME=do-token-scoper-companion
 CONTAINER_PORT=5678
 
-SOURCES=main.go rules.go utils.go config.go
+SOURCES=main.go rules.go utils.go config.go metrics.go
 TESTS=rules_test.go
 # TODO: use magic functions to find all sources and tests
 DOCKER_PROJECT := allgreed/digitalocean-token-scoper

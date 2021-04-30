@@ -8,6 +8,8 @@ import (
 	uuid "github.com/pborman/uuid"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"io"
 	"net/http"
 	"net/url"
@@ -25,6 +27,7 @@ var (
 )
 
 func handleFunc(w http.ResponseWriter, r *http.Request) {
+	metrics.incoming_requests.Inc()
 	requestID := uuid.NewRandom()
 	logger := log.WithFields(log.Fields{
 		"request_id": requestID,
@@ -36,6 +39,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	_token := r.Header["Authorization"]
 	if len(_token) != 1 {
+		metrics.unauthorized_requests.Inc()
 		JSONError(w, "Please provide a token in the Authorization header", 401)
 		logger.Info("Missing token, aborting")
 		return
@@ -44,6 +48,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := token_to_user[token]
 	if !ok {
+		metrics.failed_authentications.Inc()
 		JSONError(w, "Please provide a valid token in the Authorization header", 401)
 		logger.Info("Invalid or unknown token, aborting")
 		return
@@ -59,10 +64,11 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 
 	ar, err := url_to_auth_request(r.URL, r.Method)
 	if err != nil {
+		metrics.other_errors.Inc()
 		JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 500)
 		logger.WithFields(log.Fields{
 			"err": err,
-		}).Warn("Transalting request to interanl representation")
+		}).Error("Transalting request to interanl representation")
 	}
 	effectivePermissionRules := append(permissions, DenyAll{})
 
@@ -78,6 +84,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 			}).Debug("Matched rule")
 
 			if !rule.can_i(ar) {
+				metrics.failed_authorizations.Inc()
 				JSONError(w, "You don't have access to that resource with that method", 403)
 				logger.WithFields(log.Fields{
 					"ar": ar,
@@ -95,9 +102,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 		hh[k] = v
 	}
 
-	if _, ok := hh["Authorization"]; ok {
-		hh["Authorization"] = []string{"Bearer " + do_token}
-	}
+	hh["Authorization"] = []string{"Bearer " + do_token}
 
 	r.URL.Host = target_url.Host
 	r.URL.Scheme = target_url.Scheme
@@ -112,6 +117,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := http.DefaultTransport.RoundTrip(&proxied_request)
 	if err != nil {
+		metrics.upstream_errors.Inc()
 		JSONError(w, "Something wrong with upstream", 504)
 		logger.WithFields(log.Fields{
 			"err": err,
@@ -127,12 +133,14 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(resp.StatusCode)
 	_, err = io.Copy(w, resp.Body)
 	if err != nil {
+		metrics.other_errors.Inc()
 		JSONError(w, "Erm... something went wrong.  Expectedly wrong, but still wrong.", 502)
 		logger.WithFields(log.Fields{
 			"err": err,
-		}).Warn("Copying response body")
+		}).Error("Copying response body")
 		return
 	}
+	metrics.successful_requests.Inc()
 	logger.Info("Success")
 }
 
@@ -142,6 +150,7 @@ func main() {
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
 	handler.HandleFunc("/healthz", handleOkJSONFunc)
+	handler.Handle("/metrics", promhttp.Handler())
 
 	s := &http.Server{
 		Addr:           port,
@@ -159,14 +168,7 @@ func main() {
 	// TODO: ask for a 3rd party security audit
 
 	// TODO: all the TODOs from makefiles and default.nix
-	// TODO: automated functional tests
-
-	// TODO: add metrics
-	// TODO: update k8s example ?
-
-	// TODO: setup dependency monitoring
-	// TODO: add badges -> snyk vulnearbilities
-	// https://github.com/dwyl/repo-badges
+	// TODO: automated functional tests -> one passes one fails
 
 	// TODO: release 1.0.0
 }
