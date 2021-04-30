@@ -34,7 +34,7 @@ docker run --rm -v /tmp/do-ts-example:/data \
     -e APP_USERTOKEN__joe=/data/joe-secret \
     -e APP_TOKEN_PATH=/data/do-token \
     -p 7777:80 \
-    allgreed/digitalocean-token-scoper:0.4.1
+    allgreed/digitalocean-token-scoper
 
 # in a new shell
 # next one will pass
@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: main
-        image: docker.io/allgreed/digitalocean-token-scoper:0.4.1
+        image: docker.io/allgreed/digitalocean-token-scoper
         ports:
         - containerPort: 80
         volumeMounts:
@@ -82,10 +82,10 @@ spec:
           name: digitalocean-token-scoper
       - name: joe-token
         secret:
-          secretName: ...
+          secretName: joe-token
       - name: do-api-token
         secret:
-          secretName: ...
+          secretName: do-api-token
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -118,12 +118,16 @@ data:
 ```
 
 ### Example: Terraform
+- Given an instance of digitalocean-token-scoper is running at example.com:7777, user joe has a token and associated permissions
+
 ```terraform
 provider digitalocean {
-  token     = "your do-token-scoper goes here"
-  api_endpoint = "http://wherever-it's-running:port"
+  token        = "joe's token goes here"
+  api_endpoint = "http://example.com:7777"
 }
 ```
+
+- run your terraform as you normally would [yup, this was tested and proven to work!] ;)
 
 ### Permission model
 - rules are applied sequentially in order

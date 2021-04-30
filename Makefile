@@ -90,7 +90,7 @@ check-version-uploaded:
 	curl --silent -f -lSL https://index.docker.io/v1/repositories/$(DOCKER_PROJECT)/tags/$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX)) > /dev/null && false || true
 
 prepare-release-image-tag:
-	$(ACQUIRE_VERSION_FORM_DEFAULT_NIX),latest > .tags
+	echo "$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX)),latest,$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX) | cut -d'.' -f 1),$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX) | cut -d'.' -f 1,2)" > .tags
 
 # Utilities
 # ###############

@@ -2,5 +2,8 @@
 *.out
 result
 
+# CI utility
+.tags
+
 # emulate k8s env
 secrets
