@@ -25,7 +25,7 @@ build: setup ## create artifact
 	nix-build
 
 lint: setup ## run static analysis
-	gofmt $(LINTFLAGS) -w $(SOURCES)
+	gofmt $(LINTFLAGS) -w .
 
 lint-check: setup ## run static analysis - for CI
 	test -z "$$(gofmt $(LINTFLAGS) -l .)"
