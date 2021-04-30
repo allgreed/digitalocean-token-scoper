@@ -10,13 +10,13 @@ let
 in
 with pkgs; rec {
   pname = "digitalocean-token-scoper";
-  version = "0.5.0";
+  version = "0.5.1";
   app = buildGoModule rec {
     inherit pname;
     inherit version;
 
     # TODO: fix leakage to ~/go
-    # TODO: fix not having this stuff avaible in dev-shell
+    # TODO: fix not having this stuff avaible in dev-shell (and in CI)
     buildInputs = [
       git
       gnumake
@@ -26,7 +26,7 @@ with pkgs; rec {
       jq
     ];
     src = builtins.filterSource (path: type:  baseNameOf path != ".git") ./.;
-    vendorSha256 = "02wdj7ijffzlslnfpwildvigwdgngz1599x9fmag2s81rfyv24k5"; 
+    vendorSha256 = "14j9l9g6zk3rjqw3iwmpjxhzhiqi7sfrq0415hrcylypdxiyknw3";
 
     subPackages = [ "." ]; 
 

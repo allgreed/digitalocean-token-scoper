@@ -83,16 +83,16 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 				"rule": fmt.Sprintf("%#v", rule),
 			}).Debug("Matched rule")
 
-			if !rule.can_i(ar) {
-				metrics.failed_authorizations.Inc()
-				JSONError(w, "You don't have access to that resource with that method", 403)
-				logger.WithFields(log.Fields{
-					"ar": ar,
-				}).Warn("Unauthorized action attempt")
-				return
-			} else {
+			if rule.can_i(ar) {
 				break
 			}
+
+			metrics.failed_authorizations.Inc()
+			JSONError(w, "You don't have access to that resource with that method", 403)
+			logger.WithFields(log.Fields{
+				"ar": ar,
+			}).Warn("Unauthorized action attempt")
+			return
 		}
 	}
 	logger.Info("Authorized")
@@ -164,8 +164,6 @@ func main() {
 		"port": port,
 	}).Info("Starting!")
 	log.Fatal(s.ListenAndServe())
-
-	// TODO: ask for a 3rd party security audit
 
 	// TODO: all the TODOs from makefiles and default.nix
 	// TODO: automated functional tests -> one passes one fails
