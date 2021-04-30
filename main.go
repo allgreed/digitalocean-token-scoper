@@ -141,6 +141,8 @@ func main() {
 
 	handler := http.DefaultServeMux
 	handler.HandleFunc("/", handleFunc)
+	handler.HandleFunc("/healthz", handleOkJSONFunc)
+
 	s := &http.Server{
 		Addr:           port,
 		Handler:        handler,
@@ -159,8 +161,6 @@ func main() {
 	// TODO: all the TODOs from makefiles and default.nix
 	// TODO: automated functional tests
 
-	// TODO: add health and ready url
-	// TODO: update k8s example ?
 	// TODO: add metrics
 	// TODO: update k8s example ?
 

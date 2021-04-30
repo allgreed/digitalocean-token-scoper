@@ -66,6 +66,12 @@ spec:
         image: docker.io/allgreed/digitalocean-token-scoper
         ports:
         - containerPort: 80
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          failureThreshold: 10
+          periodSeconds: 1
         volumeMounts:
         - name: joe-token
           mountPath: "/secrets/users/joe"

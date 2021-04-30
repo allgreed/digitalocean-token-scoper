@@ -94,3 +94,9 @@ func get_param(r Rule, p string) string {
 
 	return result
 }
+
+func handleOkJSONFunc(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, "%q", "ok")
+}
