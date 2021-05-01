@@ -5,11 +5,11 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 [![Build Status](https://cloud.drone.io/api/badges/allgreed/digitalocean-token-scoper/status.svg)](https://cloud.drone.io/allgreed/digitalocean-token-scoper)
 ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/allgreed/digitalocean-token-scoper?sort=semver)
 
-\* technically they have scoping, you can choose either write or read + write. Plz no sue.
+\* technically they have scoping, you can choose either *read* or *read&write*. Plz no sue.
 
 ## Usage
 - It's an HTTP proxy, just run it (either as binary or container) and send DigitalOcean requests to it 
-- Usernames are fairly arbitrary, however I'm assuming alphanumeric ASCII and that tokens should not contain significant whitespace at the begining or end.
+- Usernames and tokens can be fairly arbitrary, however I'm assuming alphanumeric ASCII (for usernames) and that tokens should not contain significant whitespace at the begining or end.
 - See examples
 
 ### Example: Docker

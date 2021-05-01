@@ -22,7 +22,7 @@ run-watch: setup ## run the app in dev mode, hot reloading
 	ls $(SOURCES) Makefile | entr -cr make run
 
 build: setup ## create artifact
-	nix-build
+	nix-build -A the.app
 
 lint: setup ## run static analysis
 	gofmt $(LINTFLAGS) -w .
@@ -87,7 +87,8 @@ container-full: setup container ## create and load the image to the local reposi
 ACQUIRE_VERSION_FORM_DEFAULT_NIX := grep 'version =' default.nix | cut -d' ' -f 5 | tr -d '\"\;'
 
 check-version-uploaded:
-	curl --silent -f -lSL https://index.docker.io/v1/repositories/$(DOCKER_PROJECT)/tags/$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX)) > /dev/null && false || true
+	# check if such a version already exists on Dockerhub
+	test ! $$(> /dev/null 2>&1 curl --silent -f -lSL https://index.docker.io/v1/repositories/$(DOCKER_PROJECT)/tags/$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX)))
 
 prepare-release-image-tag:
 	echo "$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX)),latest,$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX) | cut -d'.' -f 1),$$($(ACQUIRE_VERSION_FORM_DEFAULT_NIX) | cut -d'.' -f 1,2)" > .tags

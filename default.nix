@@ -11,21 +11,23 @@ in
 with pkgs; rec {
   pname = "digitalocean-token-scoper";
   version = "0.5.1";
-  app = buildGoModule rec {
-    inherit pname;
-    inherit version;
-
-    # TODO: fix leakage to ~/go
-    # TODO: fix not having this stuff avaible in dev-shell (and in CI)
+  shell = mkShell {
     buildInputs = [
+      the.app
+      go
       git
       gnumake
-      go
       entr
       curl
       jq
     ];
-    src = builtins.filterSource (path: type:  baseNameOf path != ".git") ./.;
+  };
+  the.app = buildGoModule rec {
+    inherit pname;
+    inherit version;
+
+    # TODO: fix leakage to ~/go
+    src = builtins.filterSource (path: type:  baseNameOf path != ".git" || baseNameOf path != "default.nix") ./.;
     vendorSha256 = "14j9l9g6zk3rjqw3iwmpjxhzhiqi7sfrq0415hrcylypdxiyknw3";
 
     subPackages = [ "." ]; 
@@ -47,11 +49,11 @@ with pkgs; rec {
 
     created = "now";
 
-    contents = [ app cacert ];
+    contents = [ the.app cacert ];
 
     config = {
       Cmd = [
-        "${app}/bin/${pname}"
+        "${the.app}/bin/${pname}"
       ];
 
       ExposedPorts = {

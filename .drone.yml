@@ -23,50 +23,62 @@ steps:
   commands:
   - nix-shell --quiet --run 'make lint-check'
 
-- name: container
+- name: build container
   image: allgreed/nix:2.3.10
   commands:
   - echo -n "preview-$DRONE_COMMIT_SHA" > .tags
   - nix-shell --quiet --run 'make container'
   - mv $(readlink -f result) docker-image.tar.gz # need to persist the image between stages and Drone only mounts CWD, so symlinks would fail
 
-#- name: push-container-image
-  #image: allgreed/drone-load-and-store
-  #settings:
-    #archive: docker-image.tar.gz
-    #repo: allgreed/digitalocean-token-scoper
-    #username:
-      #from_secret: docker_username
-    #password:
-      #from_secret: docker_password
+- name: push container image
+  image: allgreed/drone-load-and-store
+  settings:
+    archive: docker-image.tar.gz
+    repo: allgreed/digitalocean-token-scoper
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  #when:
+    #branch:
+    #- master
 
-#- name: preapre-functional-env
-  #image: allgreed/nix:2.3.10
-  #commands:
-  #- nix-shell --quiet --run 'make secrets'
+- name: functional tests setup
+  image: allgreed/nix:2.3.10
+  commands:
+  - nix-shell --quiet --run 'make secrets'
+  #when:
+    #branch:
+    #- master
 
-  ## TODO: fix!
-#- name: run app
-  #image: allgreed/digitalocean-token-scoper:preview-${DRONE_COMMIT_SHA}
-  #environment:
-    #APP_LOG_LEVEL: "debug"
-    #APP_LOG_FORMAT: "text"
-    #APP_PORT: "8080"
-    #APP_TARGET_URL: "http://companion"
-    #APP_USERTOKEN__allgreed: "./secrets/users/allgreed/secret"
-    #APP_USERTOKEN__dawid: "./secrets/users/dawid/secret"
-    #APP_TOKEN_PATH: "./secrets/token/secret"
-  #detach: true
+# TODO: fix!
+- name: run app
+  image: allgreed/digitalocean-token-scoper:preview-${DRONE_COMMIT_SHA}
+  environment:
+    APP_LOG_LEVEL: "debug"
+    APP_LOG_FORMAT: "text"
+    APP_PORT: "8080"
+    APP_TARGET_URL: "http://companion"
+    APP_USERTOKEN__allgreed: "./secrets/users/allgreed/secret"
+    APP_USERTOKEN__dawid: "./secrets/users/dawid/secret"
+    APP_TOKEN_PATH: "./secrets/token/secret"
+  detach: true
+  #when:
+    #branch:
+    #- master
 
-#- name: functional tests
-  #image: allgreed/nix:2.3.10
-  #commands:
-  #- nix-shell --quiet --run 'make interact'
-  ## TODO: add assertions and a real test script
-    ## one requests fails, one passes
-    ## only on master and master prs
+- name: functional tests
+  image: allgreed/nix:2.3.10
+  commands:
+  - nix-shell --quiet --run 'make interact'
+  # TODO: add assertions and a real test script
+    # one requests fails, one passes
+  #when:
+    #branch:
+    #- master
+  # TODO: uncomment stuff like this after this all works
 
-- name: prepare-container-release
+- name: tag container release
   image: allgreed/nix:2.3.10
   commands:
   - nix-shell --quiet --run 'make prepare-release-image-tag'
@@ -74,8 +86,7 @@ steps:
     branch:
     - master
 
-  # TODO: add auto_tag
-- name: push-release-container-image
+- name: push release container image
   image: allgreed/drone-load-and-store
   settings:
     archive: docker-image.tar.gz
