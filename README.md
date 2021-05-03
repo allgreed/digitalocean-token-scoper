@@ -185,3 +185,7 @@ func (rule X) is_applicable(ar AuthorizationRequest) bool {
 - token verification should be resistant against time-attacks, however this wasn't tested
 - there is no rate-limiting mechanism on a per-user basis => the DO account's limit is shared by all the users
 - response from DO's API is passed to the client **as is**, including headers. I've seen nothing sensitive there (as of 24.04.2021), yet afaik it's not guaranteed by DO.
+
+## Acknowledgements
+
+ - [davidfstr/nanoproxy](https://github.com/davidfstr/nanoproxy)

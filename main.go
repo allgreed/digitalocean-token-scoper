@@ -1,7 +1,5 @@
 package main
 
-// inspired by https://github.com/davidfstr/nanoproxy
-
 import (
 	"fmt"
 
