@@ -46,9 +46,21 @@ env-down: ## tear down dev environment
 container: setup ## create container
 	nix-build -A docker.image
 
+.ONESHELL:
 interact: ## helper process to run predefined inputs
-	# TODO: simple command runner with a few options that can be chosen at a keypress
-	curl http://localhost:$(PORT)/v2/domains/example.com/records --silent -H "Authorization: Bearer $(CLIENT_SECRET)" | jq
+	@while read line
+	do
+		case $$line in 
+		p*)
+			curl http://localhost:$(PORT)/v2/domains/example.com/records --silent -H "Authorization: Bearer $(CLIENT_SECRET)" | jq
+			;;
+		f*)
+			curl http://localhost:$(PORT)/v2/domains/example.com/records --silent -H "Authorization: Bearer bbbb" | jq
+			;;
+		*)
+			;;
+		esac
+	done
 
 # Plumbing
 # ###############
