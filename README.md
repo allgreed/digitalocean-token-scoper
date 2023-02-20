@@ -7,6 +7,8 @@ A solution to [Digitalocean](https://www.digitalocean.com/)'s [lack of token sco
 
 \* technically they have scoping, you can choose either write or read + write. Plz no sue.
 
+**I don't feel like bumping the deps, etc. Feel free to do it and PR, otherwise, caution is advised!**
+
 ## Usage
 - It's an HTTP proxy, just run it (either as binary or container) and send DigitalOcean requests to it 
 - Usernames are fairly arbitrary, however I'm assuming alphanumeric ASCII and that tokens should not contain significant whitespace at the begining or end.
